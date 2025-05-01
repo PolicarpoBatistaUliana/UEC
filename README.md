@@ -248,6 +248,69 @@ While highly secure and advanced, such a system's realization would benefit from
 
 By safeguarding their KPriv effectively, each user contributes to an unbreakable global system of identity certification, ensuring unmatched digital security.
 
+#### Key Generation
+
+Generating a key pair for use with UEC is straightforward: simply provide a password, a timestamp, and a folder to store the output files. Both the password and the folder path will be required later to unlock the private key.
+
+Although this example uses a string-based password, more advanced systems can replace it with arbitrary byte sequences, hidden metadata in media files, or even structured CRC computations over stable data like videos or image libraries. The timestamp ensures that each key is unique—even changing the milliseconds in a single day results in up to **10⁹** possible variations. Thus, the generation process is both deterministic and chaotic: the same inputs yield the same output, while small variations lead to completely different keys.
+
+Unlike traditional cryptography based on large prime numbers, which become increasingly difficult to generate for higher bit sizes, this model is free of such limitations. For example, generating a pair of 2,500-digit keys takes around **0.1 seconds** on a standard notebook, while a 250,000-digit key takes around **100 seconds**, showing that processing time scales roughly with the **square of the number of digits**. For high-security or military-grade applications, this remains a feasible solution, even at extreme sizes like **800,000 bits**.
+
+One important consideration is that the public release of this technology is being conducted in **two stages**:
+
+1. **Initial Phase**: All core cryptographic source code is published, **except** the key generation function. The version shared has been obfuscated: key expressions were randomly altered or removed, and decoy equations were introduced, while preserving execution time and structure.
+
+2. **Final Phase**: Within **6 to 24 months**, the complete and correct version of the key generation routine will be disclosed. During this time, Dr. Ulianov seeks to establish partnerships with institutions interested in secure communications, post-quantum cryptography, and digital ID systems.
+
+The **core function** that governs the cryptographic relationship between public and private keys is:
+
+```python
+def calculate_pub_priv_keys(Ke_str, K_ID_str, num_digits):
+    """
+    Calculates the public keys (Kpub1, Kpub2) and the private key (Key_priv)
+    based on the provided Ke and K_ID values.
+
+    Parameters:
+    - Ke_str (str): The primary key value as a string.
+    - K_ID_str (str): The key identifier as a string.
+    - num_digits (int): The number of decimal places for precision.
+
+    Returns:
+    - Kpub1_str (str): The first public key component as a string.
+    - Kpub2_str (str): The second public key component as a string.
+    - Key_priv_str (str): The private key as a string.
+
+    Note:
+    Determining the values of K0, K1, and K2 from the public keys Kpub1 
+    and Kpub2 is inherently unfeasible due to the underdetermined nature 
+    of the system: three unknowns with only two equations. 
+    Even with the inclusion of K_ID to form a third equation, 
+    the introduction of KX as an additional variable results in four unknowns 
+    against three equations. Moreover, the nonlinear relationships, exemplified 
+    by equations like:
+      Kpub1 = (K0 + K2) / (K1 - K0) and 
+      Kpub2 = (K2 * K1²) / (K1 - K0), 
+    lack analytical solutions. 
+    Attempting numerical solutions is further complicated by the necessity 
+    for extremely high precision, potentially requiring computations with 
+    up to 3,000 decimal places. 
+    """
+```
+
+This highlights one of the key advantages of the Ulianov Elliptical Encryption Model: even with public keys available, reversing the system to extract the private key is mathematically impractical. The complexity and depth of the nonlinear system protect against brute-force, interpolation-based, and even quantum attacks—offering a viable long-term replacement for current prime-based schemes.
+
+Generating a key pair for use with UEC is a straightforward process: simply provide a password, a timestamp, and a target folder to store the generated files. Both the password and the directory path will be required later to unlock the private key.
+
+While this example uses a plain password string, the same mechanism can work with arbitrary byte sequences, specific sections of image or audio files, or embedded content in a PDF. In automated systems, the timestamp serves to make the key unique—each second in a given day offers up to **10⁹** distinct variations. This creates a chaotic yet deterministic generation system: for the same inputs, the result is always the same; for different inputs, the output is always unpredictable.
+
+Publishing the key generation routine is essential for transparency, user control, and auditability. In this transition phase, only **7 sets of public/private keys** are provided. These are sufficient to validate the method and support strategic partnerships in:
+
+- **Quantum-resistant cryptocurrency systems**
+- **Replacement of prime-number-based encryption in conventional applications**
+- **A low-cost global digital ID system**, with POP-level certification ranging from **$1 to $10**
+
+For security reasons, no written copies of the complete generation routine are maintained at this stage. It resides solely in the mind of Dr. Ulianov—ensuring initial control before responsibly transferring the technology to future partners.
+
 
 
 
