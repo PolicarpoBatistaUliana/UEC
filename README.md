@@ -125,3 +125,42 @@ After encryption, a 2500-digit encrypted block is produced (for POP). The header
 
 **Note**: The provided example handles encryption and decryption in a single process for simplicity, but in real scenarios, these processes are separated. Private keys (`K Priv`) should be securely stored and encrypted with user-specific passwords or sophisticated protection methods incorporating multiple authentication factors.
 
+#### Four Basic Functions for Encryption and Decryption
+
+The UEC model provides four core functions:
+
+##### 1. **encrypt_with_private_key**
+Encrypts data using a private key. This method ensures data authenticity by allowing only the private key holder to generate the encrypted content, which can be verified publicly.
+
+##### 2. **decrypt_with_public_key**
+Decrypts data using public keys, enabling verification of data authenticity encrypted by a private key.
+
+##### 3. **encrypt_with_public_key**
+Encrypts data using public keys. Ideal for securely storing or sending confidential data that only the holder of the corresponding private key can decrypt.
+
+##### 4. **decrypt_with_private_key**
+Decrypts data using the private key. Allows secure access to data encrypted with the corresponding public keys.
+
+##### Example Usage:
+
+###### Case 1: Public-key encryption, Private-key decryption
+Used for securely storing data, ensuring only the private key owner can access it.
+
+```python
+encrypted_data = encrypt_with_public_key(encoded_text, header_number, header_string, mpf(DX_base), alpha_base, public_key_1, public_key_2, key_ID, params)
+_, recovered_dig3_text, recovered_header_number, recovered_header_string = decrypt_with_private_key(encrypted_data, private_key, mpf(DX_base), alpha_base, key_ID, params)
+```
+
+###### Case 2: Private-key encryption, Public-key decryption
+Used for signing documents, where authenticity can be publicly verified.
+
+```python
+encrypted_data = encrypt_with_private_key(encoded_text, header_number, header_string, private_key, mpf(DX_base), alpha_base, key_ID, params)
+DX, recovered_dig3_text, recovered_header_number, recovered_header_string = decrypt_with_public_key(encrypted_data, public_key_1, public_key_2, mpf(DX_base), alpha_base, key_ID, params)
+```
+
+These functions handle encryption and decryption operations by processing numeric and string headers along with data, leveraging cryptographic keys and parameters to ensure secure and verifiable data exchanges.
+
+
+
+
