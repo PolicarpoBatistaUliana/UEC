@@ -299,19 +299,13 @@ def calculate_pub_priv_keys(Ke_str, K_ID_str, num_digits):
 
 This highlights one of the key advantages of the Ulianov Elliptical Encryption Model: even with public keys available, reversing the system to extract the private key is mathematically impractical. The complexity and depth of the nonlinear system protect against brute-force, interpolation-based, and even quantum attacks—offering a viable long-term replacement for current prime-based schemes.
 
-Generating a key pair for use with UEC is a straightforward process: simply provide a password, a timestamp, and a target folder to store the generated files. Both the password and the directory path will be required later to unlock the private key.
+To demonstrate the model's feasibility and scalability, **seven full key sets** are being released. These are sufficient to validate the system and engage in collaborations focused on:
 
-While this example uses a plain password string, the same mechanism can work with arbitrary byte sequences, specific sections of image or audio files, or embedded content in a PDF. In automated systems, the timestamp serves to make the key unique—each second in a given day offers up to **10⁹** distinct variations. This creates a chaotic yet deterministic generation system: for the same inputs, the result is always the same; for different inputs, the output is always unpredictable.
-
-Publishing the key generation routine is essential for transparency, user control, and auditability. In this transition phase, only **7 sets of public/private keys** are provided. These are sufficient to validate the method and support strategic partnerships in:
-
-- **Quantum-resistant cryptocurrency systems**
-- **Replacement of prime-number-based encryption in conventional applications**
-- **A low-cost global digital ID system**, with POP-level certification ranging from **$1 to $10**
+- Quantum-resistant cryptocurrencies
+- Replacing RSA/DSA/ECC systems with real-number-based elliptic encryption
+- Implementing low-cost, globally unique digital IDs (especially with the POP ID tier priced between **\$1 and \$10**)
 
 For security reasons, no written copies of the complete generation routine are maintained at this stage. It resides solely in the mind of Dr. Ulianov—ensuring initial control before responsibly transferring the technology to future partners.
-
-
 
 
 
