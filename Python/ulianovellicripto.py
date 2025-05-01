@@ -1,13 +1,13 @@
 from mpmath import mp, sqrt, sin, cos,acos, radians, mpf,fabs
 from datetime import datetime, timedelta
-
-from ulianovramdompi import (num_pi_str,str_pi_str,get_long_pi,save_private_keys,
-                             save_public_keys,load_public_keys,load_private_keys)
 import numpy as np
-import matplotlib.pyplot as plt
 import sys
 import re
 import os
+
+from ulianovramdompi import (num_pi_str,str_pi_str,get_long_pi,save_private_keys,
+                             save_public_keys,load_public_keys,load_private_keys)
+
 
 sys.set_int_max_str_digits(40000)    
 
@@ -915,8 +915,6 @@ def calculate_pub_priv_keys(Ke_str, K_ID_str, num_digits):
     the introduction of KX as an additional variable results in four unknowns 
     against three equations. Moreover, the nonlinear relationships, exemplified 
     by equations like:
-      Kpub1 = (K0² + K2²) / (K1² - K0²) and 
-      Kpub2 = (2 * K2 * K1) / (K1² - K0²), 
     lack analytical solutions. 
     Attempting numerical solutions is further complicated by the necessity 
     for extremely high precision, potentially requiring computations with 
@@ -1186,7 +1184,7 @@ def calculate_all_keys(long_pi, path, pass_word, time, id_without_crc, MSG=False
     ke_Pub = num_pi_str(str_txt, long_pi, num_digits, 0)
     ke_Pub = mpf("1.8") + mpf(ke_Pub) * mpf("0.01")
 
-    K_ID = get_k_id(ID_NO_CRC, long_pi)
+    K_ID = get_k_id(id_without_crc, long_pi)
 
     # Calculate keys
     K1_pub, K2_pub, Key_priv = calculate_pub_priv_keys(ke_Pub, K_ID, num_digits)
