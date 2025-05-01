@@ -183,6 +183,77 @@ The security strength of UEC lies in the complexity of numerically inverting F1 
 
 Furthermore, the method is resilient against quantum computing attacks, as it does not rely on factoring large prime numbers, a process easily compromised by quantum algorithms. Instead, UEC uses sophisticated real-number arithmetic and elliptical function complexity, greatly surpassing traditional prime-factorization-based encryption in robustness against quantum attacks.
 
+#### Cryptographic Keys in UEC
+
+The UEC method utilizes a total of five cryptographic keys:
+
+- **K PUB (DX)**: A short key used as an offset, ensuring the encryption operates within a specific range of values where F1 is analytically invertible by F2.
+- **K PUB (K_ID)**: A Pi-based key, uniquely generated using the ID name. If the ID is forged, it results in an incorrect K_ID, thus preventing decryption and providing additional security.
+- **K PUB (K1_pub) and K PUB (K2_pub)**: The main public keys, typically ranging from 2500 to 7000 digits, depending on the chosen security ID.
+- **K Priv**: The private key, held exclusively by the user, essential for decryption or document signing.
+
+In the proposed system, public keys (K1_pub and K2_pub) will be publicly available via a central server, facilitating the issuance of certificates linking user IDs to personal information. Users can generate their own IDs, but the official certification, preventing duplication and ensuring uniqueness, will be centrally managed. Certificate issuance for legalizing an ID-user name combination will involve a nominal fee:
+
+- **POP IDs**: Certificates priced affordably, between 1 to 10 USD.
+- **Other IDs**: Higher-priced certificates, with specific costs yet to be defined.
+
+This structured approach ensures both security and accessibility, balancing rigorous cryptographic protection with practical use-case affordability.
+
+#### Proposed Certification Scheme
+
+Any public-private key system faces two main challenges:
+
+##### 1. Keeping Private Keys (KPriv) Secret
+
+Ensuring private key secrecy is crucial and primarily the user's responsibility. Rather than relying on long, complicated passwords, an ideal approach integrates system-specific data from the user's computer, such as:
+
+- Unique files and deeply nested directories containing hidden data.
+- Mass CRC calculations on large, stable data like personal photo or video files.
+
+Such methods allow simple, memorable passwords to be transformed internally into highly secure keys. For instance, a simple password like "BOY77" could internally transform into something like "BOY77-2807088511117126013854206994096298535273419" using unique system-derived data.
+
+An effective strategy involves users creating memorable, unusual phrases, e.g., "the sun fell into the toilet and slept," simplifying memorization to keywords like "SUN," "FELL," "TOILET," "SLEPT." With execution times for unlocking keys set to around one minute per attempt, even simple, lowercase-letter passwords of four words generate a computational security span extending for centuries, making brute-force attacks virtually impossible. Notably, even possessing the correct password outside the user's own computer environment would not unlock the key, ensuring robust protection against unauthorized access.
+
+##### 2. Ensuring Secure Association Between User IDs and Public Keys (KPub)
+
+The second critical issue is guaranteeing that an ID-username combination (real or pseudonymous) is correctly associated with its corresponding public keys (KPub). This protects against scenarios where an attacker might generate a false set of keys to impersonate a legitimate user.
+
+The safest solution involves a centralized, automated certification system—a strictly controlled software running on a secure, isolated machine. This system generates certificates securely linking an ID and username directly with their corresponding KPub (K1PUB, K2PUB, KDX).
+
+#### Certification Hierarchy
+
+To ensure robust, scalable certification, a structured hierarchy with four ID types is proposed:
+
+- **GOD 001**: The top-level certifier, certifying only ARC IDs. Uses a publicly disclosed KPub and K_ID based on Pi with 20,000 decimal digits.
+- **ARC 001-001 to ARC 999-999**: Each ARC certifies user IDs, creating secure, verified public certificates.
+- **ANJ XXX.001-CRC to ANJ XXX.999-CRC**: Certified by ARCs, used primarily by notaries or official institutions to link users' real identities and various personal documents to their KPub.
+- **DAE XXX.YYY.001-CRC to DAE XXX.YYY.999-CRC**: Certified by ANJs, providing an additional layer for detailed document and identity associations.
+
+This structured system implies:
+
+- **GOD** certifies 999 ARCs, creating the foundational security layer and subsequently can be securely shut down.
+- **ARCs** certify individual user IDs and names, generating certificates that users can publicly validate.
+- **ANJs** facilitate official certifications by associating real identities and various documents with KPub.
+- **DAEs** offer detailed certification capabilities at even more specific levels.
+
+Upon receiving their certificate, a user verifies it by opening it with the publicly available GOD KPub. If successful, they record the GOD KPub encrypted using their own KPub (accessible only via their KPriv). This establishes a secure verification chain, enabling users to securely open subsequent ARCs and ANJs certificates.
+
+This certification chain is robust because it reduces security vulnerabilities to a single issue: safeguarding the user's private key (KPriv). With GOD creating the initial secure environment and disappearing post-certification, ensuring ARC physical and access security is sufficient for maintaining system integrity.
+
+Dr. Ulianov further proposes an advanced system, "Cerberus," involving three CPUs running in parallel without storing KPriv on a hard drive—keeping it solely in volatile memory. This design ensures that if all CPUs shut down simultaneously, the private key is irretrievably lost, significantly reducing vulnerabilities even to physical attacks.
+
+#### Implementation and Practical Considerations
+
+While highly secure and advanced, such a system's realization would benefit from backing by a company or non-governmental organization due to the complexity and infrastructure required. Its primary advantage lies in generating globally unique, indefinitely valid, and practically inviolable IDs and certifications.
+
+By safeguarding their KPriv effectively, each user contributes to an unbreakable global system of identity certification, ensuring unmatched digital security.
+
+
+
+
+
+
+
 
 
 
