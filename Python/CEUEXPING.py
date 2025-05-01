@@ -162,7 +162,7 @@ if opstr.lower() == "y":
     print(f"K PUB (K_ID)  = {str(K_ID)[:60]}\n")
     print(f"K PUB (K1_pub)= {str(K1_pub)[:60]}\n")
     print(f"K PUB (K2_pub)= {str(K2_pub)[:60]}\n")
-    print(f"K Priv        = {str(Key_priv)[:60]}\n")
+    print(f"K Priv        = {str(Key_priv)}\n")
 
 # Test if the private and public keys match (only the key owner can perform this)
 print("\nTesting Keys (Only the owner of the keys can do this):")
