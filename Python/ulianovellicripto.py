@@ -915,6 +915,8 @@ def calculate_pub_priv_keys(Ke_str, K_ID_str, num_digits):
     the introduction of KX as an additional variable results in four unknowns 
     against three equations. Moreover, the nonlinear relationships, exemplified 
     by equations like:
+      Kpub1 = (K0 + K2) / (K1 - K0) and 
+      Kpub2 = (K2 * K1²) / (K1 - K0), 
     lack analytical solutions. 
     Attempting numerical solutions is further complicated by the necessity 
     for extremely high precision, potentially requiring computations with 
