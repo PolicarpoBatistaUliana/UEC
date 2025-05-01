@@ -141,6 +141,8 @@ Encrypts data using public keys. Ideal for securely storing or sending confident
 ##### 4. **decrypt_with_private_key**
 Decrypts data using the private key. Allows secure access to data encrypted with the corresponding public keys.
 
+These functions handle encryption and decryption operations by processing numeric and string headers along with data, leveraging cryptographic keys and parameters to ensure secure and verifiable data exchanges.
+
 ##### Example Usage:
 
 ###### Case 1: Public-key encryption, Private-key decryption
@@ -160,6 +162,26 @@ DX, recovered_dig3_text, recovered_header_number, recovered_header_string = decr
 ```
 
 These functions handle encryption and decryption operations by processing numeric and string headers along with data, leveraging cryptographic keys and parameters to ensure secure and verifiable data exchanges.
+
+#### Elliptical Cryptographic Functions F1 and F2
+
+The Ulianov Elliptical Encryption method uses two distinct cryptographic functions, **F1** and **F2**, characterized by their unique mathematical relationship:
+
+- **F1** operates based on the public key and does not have a complete analytical inverse, only being analytically invertible within specific regions determined during key generation.
+- **F2** operates with the private key and is analytically invertible for the chosen range of cryptographic parameters. This allows for exact decryption by the key owner.
+
+The functions follow a mathematical form resembling elliptical equations, such as:
+
+```python
+F1: encrypted_data = (AlphaA * Kpub1 + Kpub2) / (DX_base + K_ID)
+F2: recovered_data = (encrypted_data * (DX_base + K_ID) - Kpub2) / Kpub1
+```
+
+(These Python-like representations simplify understanding; the actual implementation involves high-precision arithmetic.)
+
+The security strength of UEC lies in the complexity of numerically inverting F1 without access to the private key. Numerical inversion or interpolation is computationally impractical due to the high precision required (e.g., 2500 digits in the POP category).
+
+Furthermore, the method is resilient against quantum computing attacks, as it does not rely on factoring large prime numbers, a process easily compromised by quantum algorithms. Instead, UEC uses sophisticated real-number arithmetic and elliptical function complexity, greatly surpassing traditional prime-factorization-based encryption in robustness against quantum attacks.
 
 
 
