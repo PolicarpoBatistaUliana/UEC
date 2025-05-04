@@ -46,61 +46,54 @@ def limit_k(k_str, num_digits):
         # If no decimal point, add one and pad with zeros
         return f"{k_str}.{''.ljust(num_digits, '0')}"
 
-def save_public_keys(name_K1, name_K2, name_DX, filename, K1_str, K2_str, DX_str, display_msg=False):
+def save_public_keys(name_K1, name_K2, name_K3, name_K4, name_DX, name_DE, filename,
+                               K1_str, K2_str, K3_str, K4_str, DX_str, DE_str, display_msg=False):
     """
-    Saves public keys to a specified file.
-
-    :param name_K1: Identifier for the first key.
-    :param name_K2: Identifier for the second key.
-    :param name_DX: Identifier for the DX value.
-    :param filename: Name of the file to save the keys.
-    :param K1_str: String representation of the first key.
-    :param K2_str: String representation of the second key.
-    :param DX_str: String representation of the DX value.
-    :param display_msg: If True, prints a message upon successful save.
+    Saves extended public keys (4 keys + DX) to a specified file.
     """
-    K1_str = f"{name_K1} = \"{K1_str}\"\n"
-    K2_str = f"{name_K2} = \"{K2_str}\"\n"
-    DX_str = f"{name_DX} = \"{DX_str}\"\n"
     with open(filename, 'w') as file:
-        file.write(K1_str)
-        file.write(K2_str)
-        file.write(DX_str)
+        file.write(f'{name_K1} = "{K1_str}"\n')
+        file.write(f'{name_K2} = "{K2_str}"\n')
+        file.write(f'{name_K3} = "{K3_str}"\n')
+        file.write(f'{name_K4} = "{K4_str}"\n')
+        file.write(f'{name_DX} = "{DX_str}"\n')
+        file.write(f'{name_DE} = "{DE_str}"\n')
     if display_msg:
         print(f"Saved: {filename}")
 
-def load_public_keys(name_K1, name_K2, name_DX, filename, num_digits, display_msg=False):
+def load_public_keys(name_K1, name_K2, name_K3, name_K4, name_DX,name_DE,
+                              filename, num_digits, display_msg=False):
     """
-    Loads public keys from a specified file.
-
-    :param name_K1: Identifier for the first key.
-    :param name_K2: Identifier for the second key.
-    :param name_DX: Identifier for the DX value.
-    :param filename: Name of the file to read the keys from.
-    :param num_digits: Number of decimal places to limit the keys.
-    :param display_msg: If True, prints a message upon successful load.
-    :return: Tuple containing the keys as strings and a boolean indicating success.
+    Loads extended public keys (4 keys + DX) from a specified file.
     """
     if display_msg:
         print(f"Reading: {filename}")
     if not os.path.exists(filename):
-        return "", "", "", False
+        return "", "", "", "", "", False
     with open(filename, 'r') as file:
         content = file.read()
-    K1_str = re.search(f'{name_K1} = "(.*?)"', content)
-    K2_str = re.search(f'{name_K2} = "(.*?)"', content)
-    DX_str = re.search(f'{name_DX} = "(.*?)"', content)
-    if K1_str and K2_str and DX_str:
-        K1_str = limit_k(K1_str.group(1), num_digits)
-        K2_str = limit_k(K2_str.group(1), num_digits)
-        DX_str = limit_k(DX_str.group(1), 20)
-        return K1_str, K2_str, DX_str, True
+
+    K1_match = re.search(f'{name_K1} = "(.*?)"', content)
+    K2_match = re.search(f'{name_K2} = "(.*?)"', content)
+    K3_match = re.search(f'{name_K3} = "(.*?)"', content)
+    K4_match = re.search(f'{name_K4} = "(.*?)"', content)
+    DX_match = re.search(f'{name_DX} = "(.*?)"', content)
+    DE_match = re.search(f'{name_DE} = "(.*?)"', content)
+
+    if K1_match and K2_match and K3_match and K4_match and DX_match:
+        K1_str = limit_k(K1_match.group(1), num_digits)
+        K2_str = limit_k(K2_match.group(1), num_digits)
+        K3_str = limit_k(K3_match.group(1), num_digits)
+        K4_str = limit_k(K4_match.group(1), num_digits)
+        DX_str = limit_k(DX_match.group(1), 20)
+        DE_str = limit_k(DE_match.group(1), 20)
+        return K1_str, K2_str, K3_str, K4_str, DX_str,DE_str, True
     else:
-        return "", "", "", False
+        return "", "", "", "", "", False
 
 #Use this to allow save Private Key in anny directory
 #Applied only in example case softare
-software_example=True
+
 
 def corrige_normalized_path(normalized_path):
     marcador = 'KEYPRIV'
@@ -114,43 +107,50 @@ def corrige_normalized_path(normalized_path):
     normalized_path_new = prefixo_novo + normalized_path[idx:]
     return normalized_path_new
 
-def save_private_keys(pass_word, long_pi, name_K1, name_K2, name_DX, filename, K1_str, K2_str, DX_str, num_digits, display_msg=False):
+def save_private_keys(pass_word, long_pi, 
+                      name_K1, name_K2, name_K3, name_K4, name_DX,name_DE,
+                      filename,K1_str, K2_str, K3_str, K4_str, DX_str,DE_str,
+                      num_digits, display_msg=False, software_example=True):
     """
-    Saves private keys to a specified file, encrypting them with a password.
+    Saves extended private keys (4 keys + DX) to a specified file, encrypted using a password and Pi digits.
 
-    :param pass_word: Password for encrypting the keys.
-    :param long_pi: A long string of digits from Pi used for encryption.
-    :param name_K1: Identifier for the first key.
-    :param name_K2: Identifier for the second key.
-    :param name_DX: Identifier for the DX value.
-    :param filename: Name of the file to save the keys.
-    :param K1_str: String representation of the first key.
-    :param K2_str: String representation of the second key.
-    :param DX_str: String representation of the DX value.
-    :param num_digits: Number of decimal places to limit the keys.
-    :param display_msg: If True, prints a message upon successful save.
+    Parameters:
+    - pass_word: Password for encryption.
+    - long_pi: Long string of Pi digits used as seed for encryption.
+    - name_K1..K4: Labels for each key to be stored.
+    - name_DX: Label for DX base.
+    - filename: Output file name.
+    - K1_str..K4_str: Keys in string format.
+    - DX_str: DX base string.
+    - num_digits: Precision (number of digits).
+    - display_msg: Optional message display toggle.
+    - software_example: Path normalization toggle (used when testing or running examples).
     """
+    
     normalized_path = normalize_protection_path(filename)
+    if software_example:
+        normalized_path = corrige_normalized_path(normalized_path)
 
-    if (software_example==True):
-       normalized_path = corrige_normalized_path(normalized_path)
-
-    str_combined = pass_word + name_K1 + name_K2 + name_DX + normalized_path
+    str_combined = pass_word + name_K1 + name_K2 + name_K3 + name_K4 + name_DX + normalized_path
     original_dps = mp.dps
     mp.dps = num_digits
     sys.set_int_max_str_digits(num_digits * 2)
-    K1 = mpf(K1_str)
-    K2 = mpf(K2_str)
-    DX = mpf(DX_str)
-    N1 = mp.mpf(num_pi_str(str_combined, long_pi, num_digits, 0))
-    K1_str = limit_k(str(K1 * N1), num_digits + 10)
-    K2_str = limit_k(str(K2 * N1), num_digits + 10)
-    DX_str = limit_k(str(DX * N1), num_digits + 10)
-    save_public_keys(name_K1, name_K2, name_DX, filename, K1_str, K2_str, DX_str, display_msg=display_msg)
+
+    N1 = mpf(num_pi_str(str_combined, long_pi, num_digits, 0))
+    K1_str_enc = limit_k(str(mpf(K1_str) * N1), num_digits + 10)
+    K2_str_enc = limit_k(str(mpf(K2_str) * N1), num_digits + 10)
+    K3_str_enc = limit_k(str(mpf(K3_str) * N1), num_digits + 10)
+    K4_str_enc = limit_k(str(mpf(K4_str) * N1), num_digits + 10)
+    
+    save_public_keys(name_K1, name_K2, name_K3, name_K4, name_DX, name_DE,
+                     filename,K1_str_enc, K2_str_enc, K3_str_enc, K4_str_enc,
+                     DX_str,DE_str,display_msg=display_msg)
+
     mp.dps = original_dps
 
-
-def load_private_keys(pass_word, long_pi, name_K1, name_K2, name_DX,filename, num_digits, display_msg=False):
+def load_private_keys(pass_word, long_pi,name_K1, name_K2, name_K3, 
+                      name_K4, name_DX,name_DE,filename, num_digits,
+                      display_msg=False, software_example=True):
     """
     Loads private keys from a specified file, decrypting them with a password.
 
@@ -158,33 +158,43 @@ def load_private_keys(pass_word, long_pi, name_K1, name_K2, name_DX,filename, nu
     :param long_pi: A long string of digits from Pi used for decryption.
     :param name_K1: Identifier for the first key.
     :param name_K2: Identifier for the second key.
+    :param name_K3: Identifier for the third key.
+    :param name_K4: Identifier for the fourth key.
     :param name_DX: Identifier for the DX value.
     :param filename: The name of the file containing the encrypted keys.
     :param num_digits: Number of decimal places for precision.
     :param display_msg: If True, prints additional information.
-    :return: Tuple containing K1_str, K2_str, DX_str, and a boolean indicating success.
+    :param software_example: If True, corrects the normalized path for demo environment.
+    :return: Tuple containing K1_str, K2_str, K3_str, K4_str, DX_str, and a boolean indicating success.
     """
     normalized_path = normalize_protection_path(filename)
-    if (software_example==True):
-       normalized_path = corrige_normalized_path(normalized_path)
+    if software_example:
+        normalized_path = corrige_normalized_path(normalized_path)
 
-    unum_digits = mp.dps
+    original_dps = mp.dps
     mp.dps = num_digits
     sys.set_int_max_str_digits(num_digits * 2)
-    K1_str, K2_str, DX_str, read_ok = load_public_keys(name_K1, name_K2, name_DX, filename, num_digits + 10, display_msg=display_msg)
+
+    # Load encrypted strings
+    K1_str, K2_str, K3_str, K4_str, DX_str,DE_str,read_ok = load_public_keys(
+        name_K1, name_K2, name_K3, name_K4, name_DX,name_DE, 
+        filename, num_digits + 10, display_msg=display_msg)
+
     if read_ok:
-        str_str = pass_word + name_K1 + name_K2 + name_DX + normalized_path
-        N1 = mp.mpf(num_pi_str(str_str, long_pi, num_digits, 0))
-        K1 = mp.mpf(K1_str)
-        K2 = mp.mpf(K2_str)
-        DX = mp.mpf(DX_str)
-        K1_str = limit_k(str(K1 / N1), num_digits)
-        K2_str = limit_k(str(K2 / N1), num_digits)
-        DX_str = limit_k(str(DX / N1), 20)
-        mp.dps = unum_digits
-        return K1_str, K2_str, DX_str, True
-    mp.dps = unum_digits
-    return "", "", "", False
+        str_key = pass_word + name_K1 + name_K2 + name_K3 + name_K4 + name_DX + normalized_path
+        N1 = mp.mpf(num_pi_str(str_key, long_pi, num_digits, 0))
+
+        K1_str = limit_k(str(mp.mpf(K1_str) / N1), num_digits)
+        K2_str = limit_k(str(mp.mpf(K2_str) / N1), num_digits)
+        K3_str = limit_k(str(mp.mpf(K3_str) / N1), num_digits)
+        K4_str = limit_k(str(mp.mpf(K4_str) / N1), num_digits)
+
+        mp.dps = original_dps
+        return K1_str, K2_str, K3_str, K4_str, DX_str,DE_str, True
+
+    mp.dps = original_dps
+    return "", "", "", "", "", False
+
 
 def ger_num_byte(num):
     return ''.join(f'{n:03}' for n in num)

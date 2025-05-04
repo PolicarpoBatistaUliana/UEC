@@ -103,9 +103,6 @@ def clear_str(string):
 
     return new_str, num_char, crc
 
-import re
-import re
-
 def calculate_CRC_ID(id_type, id_number, long_pi):
     """
     Calcula o CRC para um ID de forma inteligente, com exceções específicas.
@@ -560,445 +557,533 @@ def conv_file_str_dig3(directory, filename):
     coded_content = conv_str_to_compac_dig3(content)
     print(f"[OK] File successfully decoded: {len(coded_content)} bytes")
     return coded_content, len(coded_content), len(content)
- 
 
-def F1_x_crypts(Alpha, Kpub1, Kpub2, DX_base, K_ID):
-    """
-    Compute the DX value based on the provided angle Alpha and public keys.
+from mpmath import mp, sqrt, cos, radians
 
-    Args:
-        Alpha (float): Angle in degrees.
-        Kpub1 (float): First public key component.
-        Kpub2 (float): Second public key component.
-        DX_base (float): Base DX value.
-        K_ID (float): Identifier constant.
-
-    Returns:
-        float: Computed DX value.
-    """
+#Simple crypt rotine used only to teste Kpub1, Kpub2 keys
+def tst_F1_crypts(Alpha, Kpub1, Kpub2, K_ID):
     Alpha_rad = mp.radians(Alpha)
-    DX = K_ID - DX_base - sqrt(Kpub1 + cos(Alpha_rad)**2 + Kpub2 * cos(Alpha_rad))
+    DX = K_ID - sqrt(Kpub1 + cos(Alpha_rad)**2 + Kpub2 * cos(Alpha_rad))
     return DX
 
-
-def F2_x_decrypts(DX, Key_priv, DX_base, K_ID):
-    """
-    Calculate the angle Alpha in degrees from the given DX and private key.
-
-    Args:
-        DX (float): DX value.
-        Key_priv (float): Private key component.
-        DX_base (float): Base DX value.
-        K_ID (float): Identifier constant.
-
-    Returns:
-        float: Computed angle Alpha in degrees.
-    """
-    cos_Alpha = DX + DX_base + Key_priv - K_ID
+#Simple decrypt rotine used only to teste Kpriv_alpha key
+def tst_F2_decrypts(DX, Kpriv_alpha, K_ID):
+    cos_Alpha = DX + Kpriv_alpha - K_ID
     Alpha = mp.degrees(acos(cos_Alpha))
     return Alpha
 
 
-def F1_x_decrypts(Alpha, Kpub1, Kpub2, Alpha_base, K_ID):
+
+def F1_7keys_crypts(de_crip, Kpub1, Kpub2, Kpub3, DX_base, K_ID):
     """
-    Decrypt or compute the DX value from the given angle Alpha and public keys.
+    Encrypts an angle Alpha into a DX value using elliptic public key parameters.
 
     Args:
-        Alpha (float): Angle in degrees.
-        Kpub1 (float): First public key component.
-        Kpub2 (float): Second public key component.
-        Alpha_base (float): Base angle in degrees.
-        K_ID (float): Identifier constant.
+        Alpha (mpf): The input angle in degrees to be encrypted.
+        Kpub1 (mpf): Public key coefficient 1.
+        Kpub2 (mpf): Public key coefficient 2.
+        Kpub3 (mpf): Precomputed constant (Ue - 1)/R0 ÷ [Ue - (1/(2 - Ue))].
+        DX_base (mpf): Base DX value.
+        K_ID (mpf): Identifier constant.
 
     Returns:
-        float: Computed DX value.
+        mpf: Encrypted value DX (used in the elliptic encryption process).
     """
-    Alpha_rad = mp.radians(Alpha + Alpha_base - K_ID)
-    DX = -sqrt(Kpub1 + cos(Alpha_rad)**2 + Kpub2 * cos(Alpha_rad))
+    cos_alpha = de_crip * Kpub3 
+    Alpha_rad = acos(cos_alpha) 
+    DX = K_ID - DX_base - sqrt(Kpub1 + cos(Alpha_rad)**2 + Kpub2 * cos(Alpha_rad))
     return DX
 
-def F2_x_crypts(DX, Key_priv, Alpha_base, K_ID):
+
+def F2_7keys_decrypts(DX, Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de, DX_base, K_ID):
     """
-    Derive the angle Alpha in degrees, incorporating an Alpha base and identifier.
+    Decrypts the encrypted elliptic DX value into an angle Alpha using the private key components.
 
     Args:
-        DX (float): DX value.
-        Key_priv (float): Private key component.
-        Alpha_base (float): Base angle in degrees.
-        K_ID (float): Identifier constant.
+        DX (mpf): Encrypted DX value.
+        Kpriv_alpha (mpf): Private key component for angle shift.
+        Kpriv_x (mpf): Private key component for x (ellipse parameter a).
+        Kpriv_y (mpf): Private key component for y (ellipse parameter b).
+        DX_base (mpf): Base DX offset.
+        Alpha_base (mpf): Base angle in degrees.
+        K_ID (mpf): Identifier key.
 
     Returns:
-        float: Computed angle Alpha in degrees.
+        Alpha (mpf): Decrypted angle in degrees.
     """
-    cos_Alpha = DX + Key_priv
-    Alpha = mp.degrees(acos(cos_Alpha)) - Alpha_base + K_ID
-    return Alpha
+    cos_Alpha = DX + DX_base + Kpriv_alpha - K_ID
+    Alpha = mp.degrees(acos(cos_Alpha))
+    #print(f"Alpha={str(Alpha)[:60]}")
+    x_data = Kpriv_x * (cos(mp.radians(Alpha)) - 1) + Kpriv_x - mp.sqrt(Kpriv_x**2 - Kpriv_y**2)
+    y_data = Kpriv_y * sin(mp.radians(Alpha))
+    de_crip = sqrt(x_data**2 + y_data**2)+Kpriv_de
+    return de_crip
 
-
-def encrypt_with_private_key(Dad_Num_str, Head_NUM_str, Head_str, K1_Priv_str, DX_base_str, Alpha_base_str, K_ID_str, params, MSG=False):
+def F1_7keys_decrypts(de_crip, Kpub1, Kpub2, Kpub3, K_ID):
     """
-    Encrypts data using a private key.
+    Decrypts a DX value using non-invertible elliptic decoding with public keys.
+
+    Args:
+        de_crip (mpf): Encrypted value (distance).
+        Kpub1 (mpf): Public key coefficient 1.
+        Kpub2 (mpf): Public key coefficient 2.
+        Kpub3 (mpf): Precomputed = (Ue - 1)/R0 ÷ [Ue - (1/(2 - Ue))].
+        Alpha_base (mpf): Base angle in degrees.
+        K_ID (mpf): Identifier key.
+
+    Returns:
+        mpf: Decrypted DX value.
+    """
+    cos_alpha = (de_crip-K_ID) * Kpub3
+    Alpha = mp.degrees(acos(cos_alpha)) 
+    #print(f"Alpha={str(Alpha)[:60]}")
+    Alpha_rad = mp.radians(Alpha)
+    DX = -sqrt(Kpub1 + cos(Alpha_rad)**2 + Kpub2 * cos(Alpha_rad))
+    return DX
+    
+
+def F2_7keys_crypts(DX,  Kpriv_alpha,  Kpriv_x,  Kpriv_y,Kpriv_de, K_ID):
+    """
+    Encrypts a DX value using a complex non-invertible private key scheme.
+
+    Args:
+        DX (mpf): Value to encrypt.
+         Kpriv_alpha (mpf): Private key component for angle.
+         Kpriv_x (mpf): Private key component for x.
+         Kpriv_y (mpf): Private key component for y.
+        Alpha_base (mpf): Base angle in degrees.
+        K_ID (mpf): Identifier key.
+
+    Returns:
+        mpf: Encrypted elliptic distance (de_crip).
+    """
+    cos_Alpha = DX + Kpriv_alpha 
+    Alpha = mp.degrees(acos(cos_Alpha)) 
+    #print(f"Alpha={str(Alpha)[:60]}")
+  
+    x_data =  Kpriv_x * (cos(mp.radians(Alpha)) - 1) +  Kpriv_x - mp.sqrt(Kpriv_x**2 - Kpriv_y**2)
+    y_data =  Kpriv_y * sin(mp.radians(Alpha))
+    de_crip = sqrt(x_data**2 + y_data**2)+Kpriv_de+K_ID
+    return de_crip
+
+  
+  
+
+def encrypt_with_private_key(
+    Dad_Num_str, Head_NUM_str, Head_str,
+    Kpriv_alpha_str, Kpriv_x_str, Kpriv_y_str,Kpriv_de_str,
+    DX_base_str, Alpha_base_str, K_ID_str,
+    params, MSG=False):
+    """
+    Encrypts data using an extended private key scheme (3 components).
 
     Parameters:
     - Dad_Num_str (str): Numeric data to be encrypted.
-    - Head_NUM_str (str): Numeric header.
-    - Head_str (str): Header in string format.
-    - K1_Priv_str (str): Private key.
-    - DX_base_str (str): Base DX value.
-    - Alpha_base_str (str): Base Alpha value.
-    - K_ID_str (str): Key ID.
-    - params (CriptoParams): Cryptographic parameters.
-    - MSG (bool): If True, prints debugging information.
+    - Head_NUM_str (str): Numeric header value.
+    - Head_str (str): String header.
+    - Kpriv_alpha_str (str): Private key component (for DX).
+    - Kpriv_x_str (str): Private key component (elliptic param x).
+    - Kpriv_y_str (str): Private key component (elliptic param y).
+    - DX_base_str (str): DX base.
+    - Alpha_base_str (str): Base alpha.
+    - K_ID_str (str): Key identifier.
+    - params (CriptoParams): Cryptographic parameters and positions.
+    - MSG (bool): Enable debug output.
 
     Returns:
-    - data_Alpha_Crip_str (str): Encrypted Alpha value.
+    - str: Encrypted elliptic value as string (de_crip).
     """
-    # Save current precision and set new precision
+    # Setup precision
     original_dps = mp.dps
     mp.dps = params.num_digits
-    K1_Priv = mpf(K1_Priv_str)
+
+    # Convert inputs to mpf
+    Kpriv_alpha = mpf(Kpriv_alpha_str)
+    Kpriv_x = mpf(Kpriv_x_str)
+    Kpriv_y = mpf(Kpriv_y_str)
+    Kpriv_de = mpf(Kpriv_de_str)
     DX_base = mpf(DX_base_str)
     Alpha_base = mpf(Alpha_base_str)
     K_ID = mpf(K_ID_str)
 
-    # Convert input strings to multi-precision floating-point numbers
-    Dad_Num = mpf(Dad_Num_str[:params.len_data_dig3]+".000005")
-    Head_NUM = mpf(Head_NUM_str[:params.len_header_num])
-    
-    # Process the string header
-    Head_str = Head_str[:params.len_header_str_char]
-    Num_Head_str = convert_str_to_dig3(Head_str)[:params.len_header_str_dig]
-     
-    # Calculate scaled values
-    Head_NUM_E10 = Head_NUM * mpf(f'1E-{params.pos_head_num}')
-   
-    Num_Head_str_E10 = mpf(Num_Head_str) * mpf(f'1E-{params.pos_head_str}')
-    
-    Dad_Num_E10 = Dad_Num * mpf(f'1E-{params.pos_data}')
-    
-    # Calculate DX
-    DX_data = (Head_NUM_E10 + Num_Head_str_E10 + Dad_Num_E10)
-    DX = DX_base - DX_data
-    if  MSG:
-       print(f"Num_Head_str={Head_NUM} placed at ={params.pos_head_num}") 
-       print(f"Num_Head_str={Num_Head_str} placed at ={params.pos_head_str}") 
-       print(f"Dad_Num={str(Dad_Num)[:80]} placed at ={params.pos_data-params.len_data_dig3} to {params.pos_data}") 
-       print(f"Data to be encrypted = {DX_data}")
-
-    # Encrypt the data
-    data_Alpha_Crip = F2_x_crypts(DX, K1_Priv, Alpha_base, K_ID)
-    data_Alpha_Crip_str = str(data_Alpha_Crip)
-
-    # Restore original precision
-    mp.dps = original_dps
-    return data_Alpha_Crip_str
-
-def decrypt_with_public_key(AlphaA_str, Kpub1_str, Kpub2_str, DX_base_str, Alpha_base_str, K_ID_str, params, MSG=False):
-    """
-    Decrypts data using public keys.
-
-    Parameters:
-    - AlphaA_str (str): Encrypted Alpha value.
-    - Kpub1_str (str): Public key 1.
-    - Kpub2_str (str): Public key 2.
-    - DX_base_str (str): Base DX value.
-    - Alpha_base_str (str): Base Alpha value.
-    - K_ID_str (str): Key ID.
-    - params (CriptoParams): Cryptographic parameters.
-    - MSG (bool): If True, prints debugging information.
-
-    Returns:
-    - tuple:
-        - str: Decrypted Decod_X value.
-        - str: Recovered data.
-        - str: Recovered Head_NUM value.
-        - str: Recovered Head_str.
-    """
-    # Save current precision and set new precision
-    original_dps = mp.dps
-    mp.dps = params.num_digits
-
-    # Convert input strings to multi-precision floating-point numbers
-    AlphaA = mpf(AlphaA_str)
-    Kpub1 = mpf(Kpub1_str)
-    Kpub2 = mpf(Kpub2_str)
-    DX_base = mpf(DX_base_str)
-    Alpha_base = mpf(Alpha_base_str)
-    K_ID = mpf(K_ID_str)
-
-    # Decrypt the data
-    Decod_X = fabs(F1_x_decrypts(AlphaA, Kpub1, Kpub2, Alpha_base, K_ID) - DX_base)
-    decod_X_str = str(Decod_X) + "000000000000"
-
-    if  MSG:
-        print(f"\nRecovered data = {Decod_X}")
-
-    if len(decod_X_str) < params.pos_data:
-        mp.dps = original_dps
-        return str(Decod_X), "0", "0", "ERROR in Head_str"
-
-    # Calculate positions for extracting headers and data
-    deshead_num = params.pos_head_num + 2 - params.len_header_num
-    delodata = params.pos_data + 2 - params.len_data_dig3
-    deslhead_str = params.pos_head_str + 2 - params.len_header_str_dig
-
-    # Extract and adjust the recovered data string
-    data_rec_dig3 = decod_X_str[delodata: ]
-    ud1_V0 = decod_X_str[delodata + params.len_data_dig3:delodata + params.len_data_dig3 + 1]
-    ud = decod_X_str[delodata + params.len_data_dig3 - 1:delodata + params.len_data_dig3]
-
-    if ud1_V0 == "9":
-        ud1 = chr(ord(ud) + 1)
-        ud = ud1
-    data_rec_dig3 = data_rec_dig3 + ud
-    data_rec_dig3 = data_rec_dig3[:params.len_data_dig3] 
-   
-    # Extract numeric header and convert
-    Head_num_str = decod_X_str[deshead_num:deshead_num + params.len_header_num]
-    Num_Head_str = decod_X_str[deslhead_str:deslhead_str + params.len_header_str_dig]
-    Head_str_rec, OK, Nbrec = convert_dig3_to_str(Num_Head_str)
-
-    if len(Head_num_str) > 10:
-        Head_num_val = mpf(Head_num_str)
-    else:
-        Head_num_val = 0
-
-    # Restore original precision
-    mp.dps = original_dps
-    return decod_X_str, data_rec_dig3, Head_num_val, Head_str_rec
-
-def encrypt_with_public_key(Dad_Num_str, Head_NUM_str, Head_str, DX_base_str, Alpha_base_str, Kpub1_str, Kpub2_str, K_ID_str, params: CriptoParams, MSG=False):
-    """
-    Encrypts data using public keys Kpub1 and Kpub2.
-
-    Parameters:
-    - Dad_Num_str (str): Numeric data to be encrypted, as a string.
-    - Head_NUM_str (str): Numeric header, as a string.
-    - Head_str (str): Header in string format.
-    - DX_base_str (str): Base DX value, as a string.
-    - Alpha_base_str (str): Base Alpha value, as a string.
-    - Kpub1_str (str): Public key 1, as a string.
-    - Kpub2_str (str): Public key 2, as a string.
-    - K_ID_str (str): Key identifier, as a string.
-    - params (CriptoParams): Cryptographic parameters.
-    - MSG (bool): If True, prints debugging information.
-
-    Returns:
-    - data_X_Crip_str (str): Encrypted DX value, as a string.
-    """
-    # Save the current precision and set the new precision
-    original_precision = mp.dps
-    mp.dps = params.num_digits
-
-    # Convert input strings to mpf with appropriate precision
+    # Process and scale input data
     Dad_Num = mpf(Dad_Num_str[:params.len_data_dig3] + ".000005")
     Head_NUM = mpf(Head_NUM_str[:params.len_header_num])
     Head_str = Head_str[:params.len_header_str_char]
     Num_Head_str = convert_str_to_dig3(Head_str)[:params.len_header_str_dig]
 
-    # Convert other input strings to mpf
-    Kpub1 = mpf(Kpub1_str)
-    Kpub2 = mpf(Kpub2_str)
-    DX_base = mpf(DX_base_str)
-    Alpha_base = mpf(Alpha_base_str)
-    K_ID = mpf(K_ID_str)
-
-    # Scale headers and data to appropriate positions
     Head_NUM_E10 = Head_NUM * mpf(f'1E-{params.pos_head_num}')
     Num_Head_str_E10 = mpf(Num_Head_str) * mpf(f'1E-{params.pos_head_str}')
     Dad_Num_E10 = Dad_Num * mpf(f'1E-{params.pos_data}')
 
-    # Compute AlphaA by combining Alpha_base and scaled components
-    AlphaA = Alpha_base + Head_NUM_E10 + Num_Head_str_E10 + Dad_Num_E10
-    if MSG:
-        print(f"Data to be encrypted = {AlphaA}")
+    DX_data = Head_NUM_E10 + Num_Head_str_E10 + Dad_Num_E10
+    DX = DX_base - DX_data
+    
 
-    # Compute the public DX value using the F1_x_crypts function
-    data_X_Crip = F1_x_crypts(AlphaA, Kpub1, Kpub2, DX_base, K_ID)
-    data_X_Crip_str = str(data_X_Crip)
+    if 1 or MSG:
+        print(f"Head_NUM = {Head_NUM} @ 10^-{params.pos_head_num}")
+        print(f"Num_Head_str = {Num_Head_str} @ 10^-{params.pos_head_str}")
+        print(f"Dad_Num = {str(Dad_Num)[:60]} @ 10^-{params.pos_data}")
+        print(f"DX_data = {str(DX_data)[:60]}")
 
-    # Restore the original precision
-    mp.dps = original_precision
-    return data_X_Crip_str
+    # Encrypt using the updated F2 function
+ 
+    de_Crip = F2_7keys_crypts(DX, Kpriv_alpha, Kpriv_x, Kpriv_y,Kpriv_de,K_ID)
+ 
+   
+    str_de_Crip =str(de_Crip)
+    # Restore original precision
+    mp.dps = original_dps
+    return str_de_Crip
 
-def decrypt_with_private_key(data_X_Crip_str, K1_Priv_str, DX_base_str, Alpha_base_str, K_ID_str, params: CriptoParams, MSG=False):
+
+def decrypt_with_public_key(de_crip_str, Kpub1_str, Kpub2_str, Kpub3_str,
+                            DX_base_str, Alpha_base_str, K_ID_str, params, MSG=False):
     """
-    Decrypts data using the private key K1_Priv.
+    Decrypts elliptically encrypted data using public keys.
 
     Parameters:
-    - data_X_Crip_str (str): Encrypted DX value, as a string.
-    - K1_Priv_str (str): Private key, as a string.
-    - DX_base_str (str): Base DX value, as a string.
-    - Alpha_base_str (str): Base Alpha value, as a string.
-    - K_ID_str (str): Key identifier, as a string.
+    - de_crip_str (str): Encrypted elliptic value.
+    - Kpub1_str to Kpub3_str (str): Public key parameters.
+    - DX_base_str (str): DX base value.
+    - Alpha_base_str (str): Alpha base value.
+    - K_ID_str (str): Key ID.
     - params (CriptoParams): Cryptographic parameters.
-    - MSG (bool): If True, prints debugging information.
+    - MSG (bool): Enable debug output.
 
     Returns:
-    - decod_Alpha_str (str): Recovered Alpha value, as a string.
-    - data_rec_dig3 (str): Recovered data in DIG3 format.
-    - Head_num_str_rec (mpf): Recovered numeric header.
-    - Head_str_rec (str): Recovered string header.
+    - tuple:
+        - str: Full decoded DX value string.
+        - str: Recovered data in DIG3.
+        - str: Recovered numeric header.
+        - str: Recovered string header.
     """
-    # Save the current precision and set the new precision
-    original_precision = mp.dps
+    original_dps = mp.dps
     mp.dps = params.num_digits
 
-    # Convert input strings to mpf with appropriate precision
-    K1_Priv = mpf(K1_Priv_str)
+    # Convert inputs
+    de_crip = mpf(de_crip_str)
+    Kpub1 = mpf(Kpub1_str)
+    Kpub2 = mpf(Kpub2_str)
+    Kpub3 = mpf(Kpub3_str)
     DX_base = mpf(DX_base_str)
     Alpha_base = mpf(Alpha_base_str)
-    data_X_Crip = mpf(data_X_Crip_str)
     K_ID = mpf(K_ID_str)
 
-    # Compute the recovered Alpha value
-    Alpha_rec = F2_x_decrypts(data_X_Crip, K1_Priv, DX_base, K_ID) - Alpha_base
-    decod_Alpha_str = str(Alpha_rec) + "000000000000"
-
-    if len(decod_Alpha_str) < params.pos_data:
-        mp.dps = original_precision
-        return Alpha_rec, "0", "0", "ERROR in Head_str"
+    # Decrypt DX
+    Decod_X = fabs(F1_7keys_decrypts(de_crip, Kpub1, Kpub2, Kpub3,  K_ID) - DX_base)
+    decod_7keys_str = str(Decod_X) + "000000000000"
 
     if MSG:
-        print(f"\nRecovered data = {Alpha_rec}")
+        print(f"\nRecovered DX = {Decod_X}")
 
-    # Calculate positions for extracting headers and data
+    if len(decod_7keys_str) < params.pos_data:
+        mp.dps = original_dps
+        return str(Decod_X), "0", "0", "ERROR in Head_str"
+
+    # Extract positions
     deshead_num = params.pos_head_num + 2 - params.len_header_num
     delodata = params.pos_data + 2 - params.len_data_dig3
     deslhead_str = params.pos_head_str + 2 - params.len_header_str_dig
 
-    # Extract and adjust the recovered data string
+    # Extract DIG3 data
+    data_rec_dig3 = decod_7keys_str[delodata:]
+    ud1_V0 = decod_7keys_str[delodata + params.len_data_dig3:delodata + params.len_data_dig3 + 1]
+    ud = decod_7keys_str[delodata + params.len_data_dig3 - 1:delodata + params.len_data_dig3]
+
+    if ud1_V0 == "9":
+        ud1 = chr(ord(ud) + 1)
+        ud = ud1
+
+    data_rec_dig3 = (data_rec_dig3 + ud)[:params.len_data_dig3]
+
+    # Reconstruct headers
+    Head_num_str = decod_7keys_str[deshead_num:deshead_num + params.len_header_num]
+    Num_Head_str = decod_7keys_str[deslhead_str:deslhead_str + params.len_header_str_dig]
+    Head_str_rec, _, _ = convert_dig3_to_str(Num_Head_str)
+
+    Head_num_val = mpf(Head_num_str) if len(Head_num_str) > 10 else 0
+
+    mp.dps = original_dps
+    return decod_7keys_str, data_rec_dig3, Head_num_val, Head_str_rec
+
+def encrypt_with_public_key(Dad_Num_str, Head_NUM_str, Head_str,
+                            DX_base_str, De_base_str,
+                            Kpub1_str, Kpub2_str, Kpub3_str, 
+                            K_ID_str, params: CriptoParams, MSG=False):
+    """
+    Encrypts data using updated public key method with 4 Kpub components.
+
+    Parameters:
+    - Dad_Num_str (str): Data to encrypt.
+    - Head_NUM_str (str): Header number.
+    - Head_str (str): Header string.
+    - DX_base_str (str): Base DX value.
+    - De_base_str (str): Base de value.
+    - Kpub1_str to Kpub3_str (str): Public key parameters.
+    - K_ID_str (str): Key ID.
+    - params (CriptoParams): Crypto configuration.
+    - MSG (bool): Debug output flag.
+
+    Returns:
+    - str: Encrypted DX string.
+    """
+    original_precision = mp.dps
+    mp.dps = params.num_digits
+
+    # Parse inputs
+    Dad_Num = mpf(Dad_Num_str[:params.len_data_dig3] + ".000005")
+    Head_NUM = mpf(Head_NUM_str[:params.len_header_num])
+    Head_str = Head_str[:params.len_header_str_char]
+    Num_Head_str = convert_str_to_dig3(Head_str)[:params.len_header_str_dig]
+
+    Kpub1 = mpf(Kpub1_str)
+    Kpub2 = mpf(Kpub2_str)
+    Kpub3 = mpf(Kpub3_str)
+    DX_base = mpf(DX_base_str)
+    De_base = mpf(De_base_str)
+    K_ID = mpf(K_ID_str)
+
+    # Compute components
+    Head_NUM_E10 = Head_NUM * mpf(f'1E-{params.pos_head_num}')
+    Num_Head_str_E10 = mpf(Num_Head_str) * mpf(f'1E-{params.pos_head_str}')
+    Dad_Num_E10 = Dad_Num * mpf(f'1E-{params.pos_data}')
+
+    # De_base
+    de_data = De_base + Head_NUM_E10 + Num_Head_str_E10 + Dad_Num_E10
+    if MSG:
+        print(f"de_data to encrypt = {de_data}")
+
+    # Encrypt using public keys
+    DX_crip = F1_7keys_crypts(de_data, Kpub1, Kpub2, Kpub3, DX_base, K_ID)
+    mp.dps = original_precision
+    return str(DX_crip)
+
+def decrypt_with_private_key(data_7keys_Crip_str,  Kpriv_alpha_str,  Kpriv_x_str,  Kpriv_y_str,DX_de_str,
+                              DX_base_str, Alpha_base_str, K_ID_str, params, MSG=False):
+    """
+    Decrypts data using extended private key (3 components).
+
+    Parameters:
+    - data_7keys_Crip_str (str): Encrypted DX value.
+    -  Kpriv_alpha_str (str): Private key component alpha.
+    -  Kpriv_x_str (str): Private key component x.
+    -  Kpriv_y_str (str): Private key component y.
+    - DX_base_str (str): Base DX.
+    - Alpha_base_str (str): Base Alpha.
+    - K_ID_str (str): Identifier.
+    - params (CriptoParams): Parameters.
+    - MSG (bool): Debug flag.
+
+    Returns:
+    - decod_Alpha_str (str)
+    - data_rec_dig3 (str)
+    - Head_num_str_rec (mpf)
+    - Head_str_rec (str)
+    """
+    original_precision = mp.dps
+    mp.dps = params.num_digits
+
+    # Convert inputs
+    DX = mpf(data_7keys_Crip_str)
+    Kpriv_alpha = mpf( Kpriv_alpha_str)
+    Kpriv_x = mpf( Kpriv_x_str)
+    Kpriv_y = mpf( Kpriv_y_str)
+    DX_base = mpf(DX_base_str)
+    Kpriv_de = mpf(DX_de_str)
+    Alpha_base = mpf(Alpha_base_str)
+    K_ID = mpf(K_ID_str)
+
+    # Recover Alpha
+    Alpha_rec = F2_7keys_decrypts(DX,  Kpriv_alpha,  Kpriv_x,  Kpriv_y,Kpriv_de, DX_base, K_ID)
+    decod_Alpha_str = str(Alpha_rec) + "000000000000"
+
+    if len(decod_Alpha_str) < params.pos_data:
+        mp.dps = original_precision
+        return str(Alpha_rec), "0", "0", "ERROR in Head_str"
+
+    if MSG:
+        print(f"\nRecovered Alpha = {Alpha_rec}")
+
+    # Extract fields
+    deshead_num = params.pos_head_num + 2 - params.len_header_num
+    delodata = params.pos_data + 2 - params.len_data_dig3
+    deslhead_str = params.pos_head_str + 2 - params.len_header_str_dig
+
     data_rec_dig3 = decod_Alpha_str[delodata:]
     ud1_V0 = decod_Alpha_str[delodata + params.len_data_dig3: delodata + params.len_data_dig3 + 1]
     ud = decod_Alpha_str[delodata + params.len_data_dig3 - 1: delodata + params.len_data_dig3]
 
-    # Sometimes a result of 1.5000000 can return 1.4999999 and needs to add 0.00000001
     if ud1_V0 == "9":
         ud1 = chr(ord(ud) + 1)
         ud = ud1
-    data_rec_dig3 = data_rec_dig3 + ud
+    data_rec_dig3 += ud
     data_rec_dig3 = data_rec_dig3[:params.len_data_dig3]
 
-    # Extract numeric header and convert
     Head_num_str_rec_str = decod_Alpha_str[deshead_num: deshead_num + params.len_header_num]
     Num_Head_str = decod_Alpha_str[deslhead_str: deslhead_str + params.len_header_str_dig]
     Head_str_rec, OK, Nbrec = convert_dig3_to_str(Num_Head_str)
 
     if len(Head_num_str_rec_str) > 10:
-        Head_num_str_rec = mp.mpf(Head_num_str_rec_str)
+        Head_num_str_rec = mpf(Head_num_str_rec_str)
     else:
         Head_num_str_rec = 0
 
     mp.dps = original_precision
     return decod_Alpha_str, data_rec_dig3, Head_num_str_rec, Head_str_rec
 
-def calculate_pub_priv_keys(Ke_str, K_ID_str, num_digits):
+def calculate_pub_priv_keys(Ke_str, R0_str, K_ID_str, num_digits):
     """
-    Calculates the public keys (Kpub1, Kpub2) and the private key (Key_priv)
-    based on the provided Ke and K_ID values.
+    Calcula as chaves públicas (Kpub1–Kpub3) e privadas ( Kpriv_alpha,  Kpriv_x,  Kpriv_y).
 
-    Parameters:
-    - Ke_str (str): The primary key value as a string.
-    - K_ID_str (str): The key identifier as a string.
-    - num_digits (int): The number of decimal places for precision.
+    Entradas:
+    - Ke_str (str): Valor Ke de entropia.
+    - K_ID_str (str): Identificador da chave.
+    - num_digits (int): Precisão numérica.
 
-    Returns:
-    - Kpub1_str (str): The first public key component as a string.
-    - Kpub2_str (str): The second public key component as a string.
-    - Key_priv_str (str): The private key as a string.
-   
-    Note:
-    Determining the values of K0, K1, and K2 from the public keys Kpub1 
-    and Kpub2 is inherently unfeasible due to the underdetermined nature 
-    of the system: three unknowns with only two equations. 
-    Even with the inclusion of K_ID to form a third equation, 
-    the introduction of KX as an additional variable results in four unknowns 
-    against three equations. Moreover, the nonlinear relationships, exemplified 
-    by equations like:
-      Kpub1 = (K0 + K2) / (K1 - K0) and 
-      Kpub2 = (K2 * K1²) / (K1 - K0), 
-    lack analytical solutions. 
-    Attempting numerical solutions is further complicated by the necessity 
-    for extremely high precision, potentially requiring computations with 
-    up to 3,000 decimal places. 
+    Retorna:
+    - dict com:
+        - 'Kpub1': componente público 1 (original)
+        - 'Kpub2': componente público 2 (original)
+        - 'Kpub3': inverso da elipse misturando R0 com Ue num valor único.
+        - ' Kpriv_alpha': componente de chave privada usada no cos(DX)
+        - ' Kpriv_x': parâmetro 'a' da elipse 
+        - ' Kpriv_y': parâmetro 'b' da elipse 
     """
-    # Save the current precision setting
-    unum_digits = mp.dps
-    # Set the precision to the specified number of decimal places
+
+    # Salva a precisão original e define a nova
+    original_dps = mp.dps
     mp.dps = num_digits
 
-    # Convert the string inputs to high-precision floating-point numbers
-    Ke = mp.mpf(Ke_str)
-    K_ID = mp.mpf(K_ID_str)
-
-    # Calculate the denominator for K_ID_Pub
-    K_ID_Pub_denominator = Ke - (1 / (Ke**2 * (1 / Ke - 2)))
-    # Compute KX using K_ID and the calculated denominator
+    # Conversões iniciais
+    Ke = mpf(Ke_str)
+    K_ID = mpf(K_ID_str)
+    R0 = mpf(R0_str)
+    
+    # Chave pública original (Kpub2, Kpub1)
+    K_ID_Pub_denominator = Ke - (2 / (Ke * (1 / Ke - 2)))
     KX = K_ID / K_ID_Pub_denominator
-
-    # Calculate the denominator for K3_Pub
-    K3_Pub_denominator = 1 - (1 / (Ke**2* (1 / Ke - 2)))
-    # Compute K3 using the calculated denominator and KX
+    K3_Pub_denominator = 2 - (2 / (Ke * (1 / Ke - 2)))
     K3 = K3_Pub_denominator * KX**2
+    abs_Ke_KX = (Ke - 2) * KX**2
+    K0 = abs_Ke_KX / ((mpf(1) / Ke) - 2)
+    K2 = abs_Ke_KX / sqrt(Ke * ((mpf(1) / Ke) - 2))
+    K1 = abs_Ke_KX - K2
 
-    # Compute the absolute value of (Ke - 1) multiplied by KX
-    abs_Ke_KX = ((Ke - 1) * KX**2)
-    # Calculate K0 using abs_Ke_KX and the square root of (1 / Ke - 1) S^^
-    K0 = abs_Ke_KX / ((mp.mpf(1) / Ke) - 2)
-    # Calculate K1 using abs_Ke_KX and Ke
-    K1 = abs_Ke_KX / sqrt(Ke**2 * ((mp.mpf(1) / Ke) - 2))
-    # Compute K2 as the difference between abs_Ke_KX and K1
-    K2 = abs_Ke_KX - K1
+    Kpub2 = (2*K0 + K1) / (2*K2 - K0*K1)
+    Kpub1 = ( K1 * K2**2) / (2*K2 - K0*K1)
+    Kpriv_alpha = K3 / K_ID
 
-    # Calculate the first public key component (Kpub1)
-    Kpub1 = (3*K0 + 2*K2) / (3*K1 - 2*K0)
-    # Calculate the second public key component (Kpub2)
-    Kpub2 = (K2 * K1**2) / (3*K1 - 2*K0)
-
-    # Compute the private key (Key_priv) using K3 and K_ID
-    Key_priv = K3 / K_ID
-
-    # Convert the computed keys to strings for output
-    Kpub1_str = str(Kpub1)
-    Kpub2_str = str(Kpub2)
-    Key_priv_str = str(Key_priv)
-
-    # Restore the original precision setting
-    mp.dps = unum_digits
+    # Cálculo de Kpub3 e Kpub3 para a parte elíptica
+    Ue = Ke
+    KK2 = (Ue - 2) / R0
+    KK1 = (mpf("2") / (mpf("1") - Ue)) - mpf("2")
+    KK3 = Ue - (mpf("2") / (mpf("1") - Ue))
+    Kpub3 = KK2 / KK3
+    kp4 = KK1/KK3
+    Kpriv_de = - kp4 /Kpub3
+     
+    # Parâmetros elípticos a e b
+    Kpriv_x = R0 / (mpf("1") - Ue)
+    Kpriv_y = R0 / sqrt((mpf("1") / Ue) - mpf("2"))
+   
+    # Restaura a precisão original
+    mp.dps = original_dps
     print("This function cannot be used because the formulas for generating private keys have been modified for security and copyright reasons.")
     exit(0)
-    return Kpub1_str, Kpub2_str, Key_priv_str
+ 
+    return  str(Kpub1),str(Kpub2),str(Kpub3),str(Kpriv_de),str(Kpriv_alpha),str( Kpriv_x),str( Kpriv_y)
 
-def test_keys(k1_pub_str, k2_pub_str, key_priv_str, alpha_base_str,num_digits):
+def test_keys(
+    Kpub1_str, Kpub2_str, Kpub3_str,
+    Kpriv_alpha_str, Kpriv_x_str, Kpriv_y_str,Kpriv_de_str,
+    alpha_base_str, K_ID_str,
+    num_digits
+):
     """
-    Tests the validity of the provided public and private keys against the given alpha base.
+    Testa se o par de chaves públicas e privadas criptografa e decriptografa corretamente.
 
-    Parameters:
-    - k1_pub_str (str): The first public key component as a string.
-    - k2_pub_str (str): The second public key component as a string.
-    - key_priv_str (str): The private key as a string.
-    - alpha_base (str): The base alpha value for testing.
+    Parâmetros:
+    - Kpub1_str a Kpub3_str: componentes da chave pública (como string)
+    - Kpriv_alpha_str, Kpriv_x_str, Kpriv_y_str: componentes da chave privada (como string)
+    - alpha_base_str: ângulo base em graus (como string)
+    - DX_base_str: valor base DX usado na criptografia (como string)
+    - K_ID_str: identificador da chave (como string)
+    - num_digits: precisão numérica
 
-    Returns:
-    - tuple: (bool indicating success, DX_base value or None)
+    Retorna:
+    - (True, DX_base calculado) se a criptografia e decriptografia forem compatíveis
+    - (False, None) caso contrário
     """
-    unum_digits = mp.dps
+    # Salva precisão atual e ajusta
+    original_dps = mp.dps
     mp.dps = num_digits
-    k1_pub = mpf(k1_pub_str)
-    k2_pub = mpf(k2_pub_str)
-    key_priv = mpf(key_priv_str)
-    A = mp.mpf(alpha_base_str)
-    # print(f"alpha ={str(A)[:80]}")
-    DX_X = F1_x_crypts(A,k1_pub, k2_pub,0,0)
+
+    # Conversão de strings para mpf
+    Kpub1 = mpf(Kpub1_str)
+    Kpub2 = mpf(Kpub2_str)
+    Kpub3 = mpf(Kpub3_str)
+    Kpriv_alpha = mpf(Kpriv_alpha_str)
+    Kpriv_x = mpf(Kpriv_x_str)
+    Kpriv_y = mpf(Kpriv_y_str)
+    Kpriv_de = mpf(Kpriv_de_str)
+    Alpha_base = mpf(alpha_base_str)
+    K_ID = mpf(K_ID_str)
+
+    # Etapa de criptografia com F1
+    #print("TESTE DE Kpub1, Kpub2,Kpriv_alpha ")
+    #print(f"alpha ={str(Alpha_base)[:80]}")
+    DX_X = tst_F1_crypts(Alpha_base,Kpub1, Kpub2,K_ID)
     #print(f"DX_X ={str(DX_X)[:80]}")
-    A2_X= F2_x_decrypts(DX_X, key_priv,0,0)
-    #print(f"A2_X ={str(A2_X)[:80]}")
-    Erro= fabs(A2_X-A)
-    if Erro>mpf("1e-2400"): 
-        return False,None
-    dx_base = str(DX_X)[:20] 
-    mp.dps = unum_digits
-    return True, dx_base
+    Alpha_X= tst_F2_decrypts(DX_X, Kpriv_alpha,K_ID)
+    #print(f"Alpha_X ={str(Alpha_X)[:80]}")
+    erro= fabs(Alpha_base-Alpha_X)
+    #print(f"erro={str(erro+1)[:60]}")
+    if erro>mpf("1e-2400"): 
+        #print("Erro testando Kpub1, Kpub2,Kpriv_alpha")
+        mp.dps = original_dps
+        return False,None,None
+    #print("TESTE DE TODAS AS CHAVES ")
+    x_data = Kpriv_x * (cos(mp.radians(Alpha_base)) - 1) + 1
+    y_data = Kpriv_y * sin(mp.radians(Alpha_base))
+    #print(f"x_data={str(x_data)[:60]}")
+    #print(f"y_data={str(y_data)[:60]}")
+    De_base = sqrt(x_data**2 + y_data**2)
+    #print(f"De_base={str(De_base)[:60]}")
+    DX_crip = F1_7keys_crypts(De_base, Kpub1, Kpub2, Kpub3, mpf("1.0"), K_ID)
+    #print(f"DX_crip={str(DX_crip)[:60]}")
+    # Etapa de decriptografia com F2
+    de_rec = F2_7keys_decrypts(DX_crip, Kpriv_alpha, Kpriv_x, Kpriv_y,Kpriv_de,mpf("1.0"), K_ID)
+    #print(f"de_rec={str(de_rec)[:60]}")
+   
+    # Verifica erro absoluto
+    erro = fabs(de_rec - De_base)
+    #print(f"erro={str(erro+1)[:60]}")
+    
+    if erro > mpf("1e-2400"):
+        #print("Erro testando TODAS AS CHAVES")
+        mp.dps = original_dps
+        return False, None,None
+    #print("TESTE DE F2_7keys_crypts e F1_7keys_decrypts ")
+    DX_base=DX_X
+    #print(f"DX_base={str(DX_base)[:60]}")
+    de_crip = F2_7keys_crypts(DX_base, Kpriv_alpha, Kpriv_x, Kpriv_y,Kpriv_de, K_ID)
+    #print(f"de_crip={str(de_crip)[:60]}")
+   
+    Decod_DX = F1_7keys_decrypts(de_crip, Kpub1, Kpub2, Kpub3,  K_ID)
+    #print(f"Decod_DX={str(Decod_DX)[:60]}")
+    #Verifica erro absoluto
+    erro = fabs(Decod_DX - DX_base)
+    #print(f"erro={str(erro+1)[:60]}")
+    if erro > mpf("1e-2400"):
+        #print("Erro testando F2_7keys_crypts e F1_7keys_decrypts")
+        mp.dps = original_dps
+        return False, None,None
+    dx_base_str = str(DX_base)[:20]
+    De_base_str = str(De_base)[:20]
+    mp.dps = original_dps
+
+    return True, dx_base_str,De_base_str
 
 def get_k_id(user_id, long_pi):
     """
@@ -1019,6 +1104,8 @@ def get_k_id(user_id, long_pi):
         k_id = str(mp.pi)  # K_ID for GOD is Pi
     else:
         k_id = num_pi_str(user_id, long_pi, num_digits, 0)  # Pi-based key for the user ID
+    k_id = str(mp.mpf(k_id)* mp.mpf("0.0001"))
+    #print(f"user_id={user_id}")
     #print(f"KID={k_id[:80]}")
     mp.dps = original_dps
     return k_id
@@ -1132,13 +1219,17 @@ def get_public_keys(long_pi, keys_path, user_id):
     """
     num_digits = get_num_digits(user_id)
     public_key_filename = f"{keys_path}/Key-Pub-{user_id}.txt"
+    
     k_id = get_k_id(user_id, long_pi)
-    k1_pub, k2_pub, dx, success = load_public_keys("K1", "K2", "DX", public_key_filename,num_digits)
+  
+    K1_pub, K2_pub, K3_pub,_, DX_base,De_base, success = load_public_keys(
+        "K1", "K2", "K3", "K4", "DX", "DE", public_key_filename, num_digits)
+
     if not success:
         error_message = f"Error reading public key: {public_key_filename}"
         return 0, 0, 0, 0, False, error_message
     success_message = "Public keys successfully read"
-    return k1_pub, k2_pub, k_id, dx, True, success_message
+    return K1_pub, K2_pub, K3_pub, k_id, DX_base,De_base, True, success_message
 
 
 def get_private_keys(long_pi,path_keys,ID,pass_word):
@@ -1147,16 +1238,19 @@ def get_private_keys(long_pi,path_keys,ID,pass_word):
     mp.dps = ndig
     name_priv = f"{path_keys}/Key-Priv-{ID}.txt"
     
-    Key_priv,_,_,OK=load_private_keys(pass_word,long_pi,"K1", "K2","DX",name_priv,ndig)
+    Kpriv_alpha, Kpriv_x, Kpriv_y, kpriv_de, _, _, OK = load_private_keys(
+        pass_word, long_pi,"K1", "K2", "K3", "K4", "DX","DE", name_priv, ndig)
+   
+   
     if not OK:
        mserror = f"Erro lendo chave prublica:{name_priv}"
        return 0,False,mserror
     mserror = "Chave Privada do usuario lidas"
     mp.dps=undig
-    return Key_priv,True,mserror
+    return  Kpriv_alpha, Kpriv_x, Kpriv_y, kpriv_de,True,mserror
 
 
-def calculate_all_keys(long_pi, path, pass_word, time, id_without_crc, MSG=False):
+def calculate_all_keys(long_pi, path, pass_word1,pass_word2, time, id_without_crc, MSG=False):
     """
     Generates all cryptographic keys for a given user ID and password.
 
@@ -1171,7 +1265,7 @@ def calculate_all_keys(long_pi, path, pass_word, time, id_without_crc, MSG=False
     Returns:
     - tuple: (success flag, message)
     """
-    alpha_base = mpf("177.888")  # Fixed alpha value within the routine
+    alpha_base = mpf("17.888")  # Fixed alpha value within the routine
     id_type, id_number = id_without_crc.split()
     crc = calculate_CRC_ID(f"{id_type}",f"{id_number}", long_pi)
     complete_id = f"{id_type} {id_number}-{crc}"
@@ -1182,117 +1276,77 @@ def calculate_all_keys(long_pi, path, pass_word, time, id_without_crc, MSG=False
     num_digits = get_num_digits(complete_id)
     mp.dps = num_digits
     # Generate K_ID and ke_Pub
-    str_txt = pass_word + time + complete_id
-    ke_Pub = num_pi_str(str_txt, long_pi, num_digits, 0)
-    ke_Pub = mpf("1.8") + mpf(ke_Pub) * mpf("0.01")
+    str_txt = pass_word1 + time + complete_id
+    ke_str = num_pi_str(str_txt, long_pi, num_digits, 0)
+    ke_str = str(mpf("1.8") + mpf(ke_str) * mpf("0.01"))
 
-    K_ID = get_k_id(id_without_crc, long_pi)
+    str_txt = pass_word2 + time + complete_id
+    R0_str = num_pi_str(str_txt, long_pi, num_digits, 0)
+    R0_str = str(mpf("1.1") + mpf(R0_str) * mpf("0.01"))
+    K_ID = get_k_id(complete_id, long_pi)
 
-    # Calculate keys
-    K1_pub, K2_pub, Key_priv = calculate_pub_priv_keys(ke_Pub, K_ID, num_digits)
+    # Calculate keys (now with 7 components)
+   
 
-    # Test the keys
-    key_ok, DX_base = test_keys(K1_pub, K2_pub, Key_priv, alpha_base,num_digits)
+    Kpub1_str, Kpub2_str, Kpub3_str,Kpriv_de_str, Kpriv_alpha_str, Kpriv_x_str, Kpriv_y_str = calculate_pub_priv_keys(
+        ke_str,R0_str, K_ID, num_digits)
+
+    # Optional: show summary
+    if MSG:
+        opstr = input("Show SUMMARY of Public and Private Keys? (y/n): ")
+        if opstr.lower() == "y":
+            #print(f"\nK PUB (DX)     = {str(DX_base)[:60]}")
+            print(f"K PUB (K_ID)   = {str(K_ID)[:60]}")
+            print(f"K PUB (K1_pub) = {str(Kpub1_str)[:60]}")
+            print(f"K PUB (K2_pub) = {str(Kpub2_str)[:60]}")
+            print(f"K PUB (K3_pub) = {str(Kpub3_str)[:60]}")
+            print(f"K PRIV (alpha) = {str(Kpriv_alpha_str)[:60]}")
+            print(f"K PRIV (de)    = {str(Kpriv_de_str)[:60]}")
+            print(f"K PRIV (x)     = {str(Kpriv_x_str)[:60]}")
+            print(f"K PRIV (y)     = {str(Kpriv_y_str)[:60]}")
+
+    # Test the keys using all 7 components
+    key_ok, DX_base,De_base = test_keys(
+        Kpub1_str, Kpub2_str, Kpub3_str,
+        Kpriv_alpha_str, Kpriv_x_str, Kpriv_y_str,Kpriv_de_str,
+        str(alpha_base), str(K_ID), num_digits
+    )
+
     if not key_ok:
         return False, "Error testing the keys"
+    else:
+        print("Key test ok")      
 
-    if MSG:
-        opstr = input("Show SUMMARY of Public Keys and Private Key? (y/n): ")
-        if opstr.lower() == "y":
-            print(f"K PUB (DX)    = {str(DX_base)[:60]}\n")
-            print(f"K PUB (K_ID)  = {str(K_ID)[:60]}\n")
-            print(f"K PUB (K1_pub)= {str(K1_pub)[:60]}\n")
-            print(f"K PUB (K2_pub)= {str(K2_pub)[:60]}\n")
-            print(f"K Priv        = {str(Key_priv)[:60]}\n")
-
-    # Save the keys
+    # Save the keys using the new format
     name_priv = f"{path}/Key-Priv-{complete_id}.txt"
     name_pub = f"{path}/Key-Pub-{complete_id}.txt"
 
-    save_public_keys("K1", "K2", "DX", name_pub, K1_pub, K2_pub, DX_base, MSG=MSG)
-    save_private_keys(pass_word, long_pi, "K1", "K2", "DX", name_priv, Key_priv, Key_priv, Key_priv, num_digits, MSG=MSG)
+    save_public_keys("K1", "K2", "K3", "K4", "DX","DE", name_pub,
+                     Kpub1_str, Kpub2_str, Kpub3_str, Kpub3_str, DX_base,De_base, display_msg=MSG)
+
+    save_private_keys(pass_word1, long_pi,"K1", "K2", "K3", "K4", "DX","DE", 
+                      name_priv,Kpriv_alpha_str, Kpriv_x_str, Kpriv_y_str,Kpriv_de_str, DX_base,De_base,
+                      num_digits, display_msg=MSG)
 
     # Read again to confirm
-    K1_pub, K2_pub, DX_base, ok1 = load_public_keys("K1", "K2", "DX", name_pub,num_digits)
-    Key_priv, _, _, ok2 = load_private_keys(pass_word, long_pi, "K1", "K2", "DX", name_priv, num_digits)
+    K1_pub, K2_pub, K3_pub,_, DX_base,De_base, ok1 = load_public_keys(
+        "K1", "K2", "K3", "K4", "DX", "DE", name_pub, num_digits, display_msg=MSG)
+
+    Kpriv_alpha, Kpriv_x, Kpriv_y, kpriv_de, _, _, ok2 = load_private_keys(
+        pass_word1, long_pi,
+        "K1", "K2", "K3", "K4", "DX","DE", name_priv, num_digits,
+        display_msg=MSG)
 
     if not ok1 or not ok2:
         return False, "Error rereading the saved keys"
 
     # Confirm again
-    key_ok, _ = test_keys(K1_pub, K2_pub, Key_priv, alpha_base,num_digits)
+    key_ok, _ , _ = test_keys(
+        K1_pub, K2_pub, K3_pub,
+        Kpriv_alpha, Kpriv_x, Kpriv_y,kpriv_de,
+        str(alpha_base),str(K_ID), num_digits
+    )
     if not key_ok:
         return False, "Final error confirming the keys"
 
     return True, f"Keys for ID {complete_id} successfully generated and verified."
-
-def generate_all_keys(long_pi, path, password, timestamp, id_without_crc, display_msg=False):
-    """
-    Generates and verifies public and private keys for a given ID.
-
-    Parameters:
-    - long_pi (str): A long representation of the mathematical constant pi.
-    - path (str): Directory path where the keys will be stored.
-    - password (str): User's password.
-    - timestamp (str): Timestamp used in key generation.
-    - id_without_crc (str): User ID without the CRC component.
-    - display_msg (bool): Flag to display messages during the process.
-
-    Returns:
-    - (bool, str): Tuple indicating success status and a message.
-    """
-    alpha_base = mpf("177.888")  # Fixed alpha value within the function
-    id_type, id_number = id_without_crc.split()
-    crc = calculate_CRC_ID(f"{id_type}",f"{id_number}", long_pi)
-    complete_id = f"{id_type} {id_number}-{crc}"
-    is_valid, error_msg = validate_id(complete_id, long_pi)
-    if not is_valid:
-        return False, f"Invalid ID: {complete_id}. {error_msg}"
-
-    num_digits = get_num_digits(complete_id)
-    mp.dps = num_digits
-    # Generate K_ID and ke_public
-    text_str = password + timestamp + complete_id
-    ke_public = num_pi_str(text_str, long_pi, num_digits, 0)
-    ke_public = mpf("1.8") + mpf(ke_public) * mpf("0.01")
-
-    k_id = get_k_id(id_without_crc, long_pi)
-
-    # Calculate keys
-    k1_public, k2_public, private_key = calculate_pub_priv_keys(ke_public, k_id, num_digits)
-
-    # Test the keys
-    keys_valid, dx_base = test_keys(k1_public, k2_public, private_key, alpha_base,num_digits)
-    if not keys_valid:
-        return False, "Error testing the keys"
-
-    if display_msg:
-        user_input = input("Display summary of public and private keys? (y/n): ")
-        if user_input.lower() == "y":
-            print(f"Public Key (DX)    = {str(dx_base)[:60]}\n")
-            print(f"Public Key (K_ID)  = {str(k_id)[:60]}\n")
-            print(f"Public Key (K1_pub)= {str(k1_public)[:60]}\n")
-            print(f"Public Key (K2_pub)= {str(k2_public)[:60]}\n")
-            print(f"Private Key        = {str(private_key)[:60]}\n")
-
-    # Save the keys
-    private_key_filename = f"{path}/Key-Priv-{complete_id}.txt"
-    public_key_filename = f"{path}/Key-Pub-{complete_id}.txt"
-
- 
-    save_public_keys("K1", "K2", "DX", public_key_filename, k1_public, k2_public, dx_base, display_msg=display_msg)
-    save_private_keys(password, long_pi, "K1", "K2", "DX", private_key_filename, private_key, private_key, private_key, num_digits, display_msg=display_msg)
-
-    # Read again to confirm
-    k1_public, k2_public, dx_base, read_ok1 = load_public_keys("K1", "K2", "DX", public_key_filename,num_digits)
-    private_key, _, _, read_ok2 = load_private_keys(password, long_pi, "K1", "K2", "DX", private_key_filename, num_digits)
-
-    if not read_ok1 or not read_ok2:
-        return False, "Error re-reading the saved keys"
-
-    # Confirm again
-    keys_valid, _ = test_keys(k1_public, k2_public, private_key, alpha_base,num_digits)
-    if not keys_valid:
-        return False, "Final error confirming the keys"
-
-    return True, f"Keys for ID {complete_id} generated and verified successfully."
