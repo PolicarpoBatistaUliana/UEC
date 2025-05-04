@@ -1,17 +1,37 @@
 # UEC
 # Ulianov Elliptic Cryptography
-## 📚 Table of Contents
 
-- [Ulianov Elliptic Cryptography](#ulianov-elliptic-cryptography)
-  - [Ulianov Elliptical Encryption Model](#ulianov-elliptical-encryption-model)
-  - [Encryption Modes](#encryption-modes)
-    - [Mode 1: Public-Key Encryption, Private-Key Decryption](#mode-1-public-key-encryption-private-key-decryption)
-    - [Mode 2: Private-Key Encryption, Public-Key Decryption](#mode-2-private-key-encryption-public-key-decryption)
-  - [Program Workflow](#program-workflow)
-  - [Enhanced Key Protection](#enhanced-key-protection)
-  - [Practical Applications](#practical-applications)
-  - [Conclusion](#conclusion)
+## 📘 Table of Contents
 
+- [Ulianov Elliptical Encryption Model](#ulianov-elliptical-encryption-model)
+- [Encryption Modes](#encryption-modes)
+  - [Mode 1: Public-Key Encryption, Private-Key Decryption](#mode-1-public-key-encryption-private-key-decryption)
+  - [Mode 2: Private-Key Encryption, Public-Key Decryption](#mode-2-private-key-encryption-public-key-decryption)
+- [Program Workflow](#program-workflow)
+- [Enhanced Key Protection](#enhanced-key-protection)
+- [Practical Applications](#practical-applications)
+- [Conclusion](#conclusion)
+- [How to Run an Example of the Ulianov Elliptical Encryption Model (UEC)](#how-to-run-an-example-of-the-ulianov-elliptical-encryption-model-uec)
+  - [Steps to Run the Example](#steps-to-run-the-example)
+  - [Encrypting and Decrypting](#encrypting-and-decrypting)
+- [Four Basic Functions for Encryption and Decryption](#four-basic-functions-for-encryption-and-decryption)
+- [Case 1: Public-key encryption, Private-key decryption](#case-1-public-key-encryption-private-key-decryption)
+- [Case 2: Private-key encryption, Public-key decryption](#case-2-private-key-encryption-public-key-decryption)
+- [Elliptical Cryptographic Functions: F1 and F2](#elliptical-cryptographic-functions-f1-and-f2)
+  - [F1 – Public-key based encryption](#f1--public-key-based-encryption)
+  - [F2 – Private-key based decryption](#f2--private-key-based-decryption)
+- [Cryptographic Keys in UEC (Ulianov Elliptical Cryptography)](#cryptographic-keys-in-uec-ulianov-elliptical-cryptography)
+  - [🟦 Public Keys (Kpub)](#-public-keys-kpub)
+  - [🟩 Private Keys (Kpriv)](#-private-keys-kpriv)
+- [Proposed Certification Scheme](#proposed-certification-scheme)
+  - [1. Keeping Private Keys (KPriv) Secret](#1-keeping-private-keys-kpriv-secret)
+  - [2. Ensuring Secure Association Between User IDs and Public Keys (KPub)](#2-ensuring-secure-association-between-user-ids-and-public-keys-kpub)
+- [Certification Hierarchy](#certification-hierarchy)
+- [Implementation and Practical Considerations](#implementation-and-practical-considerations)
+- [Key Generation](#key-generation)
+- [References](#references)
+- [Example of Small Keys](#example-of-small-keys)
+- [Example of Small Data Crypto Block](#example-of-small-data-crypto-block)
 
 #### Ulianov Elliptical Encryption Model
 
