@@ -90,8 +90,9 @@ Choose ID (1=TOP+;2=TOP;3=PRIME+;4=PRIME;5=VIP+;6=VIP;7=POP):
 
 Choose an ID between 1 and 7. For example, selecting "7" (POP) loads:
 
-- Public keys: `Key-Pub-POP 123.456.789.012-345.txt`
-- Private key: `Key-Priv-POP 123.456.789.012-345.txt`
+- Public 3 keys: `Key-Pub-POP 123.456.789.012-345.txt`
+- Private 4 keys: `Key-Priv-POP 123.456.789.012-345.txt`
+Note: In this example the private key values are encrypted with a simple key pi password "Policarpo 777777", in a real case it would be stored more securely and in a hidden location.
 
 The prompt will ask if you want to show a summary of the keys:
 
@@ -338,35 +339,35 @@ def calculate_pub_priv_keys(Ke_str, R0_str, K_ID_str, num_digits):
     - Kpriv_y_str (str): Ellipse parameter 'b' (vertical radius).
     """
 ```
-Note: Determining the values of K0, K1, and K2 from the public keys Kpub1 
-and Kpub2 is inherently unfeasible due to the underdetermined nature 
-of the system: three unknowns with only two equations. 
-Even with the inclusion of K_ID to form a third equation, 
-the introduction of KX as an additional variable results in four unknowns 
-against three equations. Moreover, the nonlinear relationships, exemplified 
-by equations like:
-      Kpub1 = (K0 + K2) / (K1 - K0) and 
-      Kpub2 = (K2 * K1) / (K1 - K0), 
-lack analytical solutions. 
 
-As: Kpub3 = F(Ke,R0) 
-It is also impossible from Kpub3 to find the original values ​​of Ke and R0
-Attempting numerical solutions is further complicated by the necessity 
-for extremely high precision, potentially requiring computations with 
-up to 3,000 decimal places. 
-  
-In general, the UEC model four private keys are defined in a 4D space that collapses in a very complex way to generate the publick the three keys in a 3D space, which naturally makes it impossible to return from the 3D context to 4D, since there are infinite combinations of private keys that will generate the same public keys. However, since there are 7 numbers with 2500 digits each, it is practically impossible to generate two private keys that have the same public key, which is also avoided by editing a public/private parameter, the K_ID value, which is a key used by both sides and is assonant with the user ID and is therefore unique.
+**Note:** Determining the values of **K0**, **K1**, and **K2** from the public keys **Kpub1** and **Kpub2** is inherently infeasible due to the underdetermined nature of the system—there are three unknowns and only two equations. Even when introducing **K_ID** to form a third equation, a new variable (**KX**) is also introduced, resulting in four unknowns and only three equations.
 
+Moreover, the system involves nonlinear equations such as:
 
-This highlights one of the key advantages of the Ulianov Elliptical Encryption Model: even with public keys available, reversing the system to extract the private key is mathematically impractical. The complexity and depth of the nonlinear system protect against brute-force, interpolation-based, and even quantum attacks—offering a viable long-term replacement for current prime-based schemes.
+```
+Kpub1 = (K0² + K2²) / (K1² - K0²)
+Kpub2 = (2 * K2 * K1) / (K1² - K0²)
+```
 
-To demonstrate the model's feasibility and scalability, **seven full key sets** are being released. These are sufficient to validate the system and engage in collaborations focused on:
+These equations do not yield analytical solutions, making symbolic inversion virtually impossible.
 
-- Quantum-resistant cryptocurrencies
-- Replacing RSA/DSA/ECC systems with real-number-based elliptic encryption
-- Implementing low-cost, globally unique digital IDs (especially with the POP ID tier priced between **\$1 and \$10**)
+Similarly, since **Kpub3** is computed as a complex nonlinear function of **Ke** and **R0** (i.e., `Kpub3 = F(Ke, R0)`), it is also computationally impractical to derive **Ke** and **R0** from **Kpub3** alone. Any numerical attempt would require extremely high precision—up to 3,000 decimal digits—which is not realistically feasible in brute-force scenarios.
 
-For security reasons, no written copies of the complete generation routine are maintained at this stage. It resides solely in the mind of Dr. Ulianov—ensuring initial control before responsibly transferring the technology to future partners.
+In essence, the **UEC model** defines **four private key components** in a 4-dimensional space, which are mapped through nonlinear transformations into **three public key components** in a 3D space. This dimensional reduction is inherently irreversible: infinitely many combinations of private keys can produce the same public keys. However, due to the vast entropy involved—seven numbers, each with 2,500 digits—it is virtually impossible to find two different private keys that map to the same public set. This is further protected by the **K_ID**, a public/private shared parameter uniquely derived from the user ID, ensuring cryptographic uniqueness per identity.
+
+This illustrates one of the fundamental strengths of the **Ulianov Elliptical Encryption Model (UEC)**: even with full access to the public keys, reconstructing the private key is mathematically intractable. The system’s nonlinearity and dimensional asymmetry provide robust resistance to brute-force, algebraic, interpolation-based, and even quantum computational attacks—positioning it as a viable long-term successor to conventional prime-based cryptography (e.g., RSA, ECC).
+
+---
+
+To demonstrate its feasibility and scalability, **seven complete key sets** have been published. These are sufficient to:
+
+- Validate the security claims of the UEC system,
+- Foster research collaborations in:
+  - Post-quantum digital currencies,
+  - Replacement of RSA/DSA/ECC with real-number-based elliptic encryption,
+  - Deployment of low-cost, globally unique digital identity (notably, the **POP ID** tier, priced between **\$1 and \$10**).
+
+> ⚠️ For security reasons, no written copies of the full key generation algorithms are currently stored or shared. At this stage, the algorithm resides solely in the mind of **Dr. Ulianov**, ensuring full initial control prior to structured technology transfer to trusted partners.
 
 ### References
 
