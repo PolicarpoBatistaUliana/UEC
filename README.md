@@ -29,7 +29,7 @@
 - [Certification Hierarchy](#certification-hierarchy)
 - [Implementation and Practical Considerations](#implementation-and-practical-considerations)
 - [Key Generation](#key-generation)
-- [Why Hasn't Real Number Based Cryptography Been Invented Until Now?](#Why-Has-not-Real-Number-Based-Cryptography-Been-Invented-Until-Now)
+- [Why Real-Number-Based Cryptography Was Not Invented Until Now?](#why-real-number-based-cryptography-was-not-invented-until-now)
 - [ChatGPT-4 Analysis](#-Analysis-of-the-UEC-Model-by-ChatGPT-4)
 - [References](#references)
 - [Example of Small Keys](#example-of-small-keys)
@@ -404,7 +404,7 @@ To demonstrate its feasibility and scalability, **seven complete key sets** have
 
 > ⚠️ For security reasons, no written copies of the full key generation algorithms are currently stored or shared. At this stage, the algorithm resides solely in the mind of **Dr. Ulianov**, ensuring full initial control prior to structured technology transfer to trusted partners.
 
-### 🧠 Why Has not Real-Number-Based Cryptography Been Invented Until Now?
+### Why Real-Number-Based Cryptography Was Not Invented Until Now
 
 The entire foundation of modern cryptography is based on **prime numbers**—very large integers—within a finite and countable set. Yet, any high school student knows that between **0 and 1** there exist **infinitely many real numbers**. Unlike integers, which are discrete and finite in any bounded interval, the real number continuum offers infinite resolution and entropy even within tiny domains.
 
