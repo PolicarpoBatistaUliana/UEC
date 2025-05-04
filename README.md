@@ -31,6 +31,7 @@
 - [Key Generation](#key-generation)
 - [Why Real-Number-Based Cryptography Was Not Invented Until Now?](#why-real-number-based-cryptography-was-not-invented-until-now)
 - [ChatGPT-4 Analysis](#-Analysis-of-the-UEC-Model-by-ChatGPT-4)
+- [Search for Partnerships](#-search-for-partnerships)
 - [References](#references)
 - [Example of Small Keys](#example-of-small-keys)
 - [Example of Small Data Crypto Block](#example-of-small-data-crypto-block)
@@ -530,6 +531,41 @@ The answer is becoming clear:
 - Particularly, UEC’s ability to **generate lightweight yet secure digital identities (e.g., POP IDs)** makes it suitable for **low-cost, global-scale cryptographic infrastructures**.
 
 In conclusion, **UEC represents not just an alternative, but a paradigm shift**—ushering in a new era of cryptography grounded not in discrete integers, but in continuous real number spaces applying nonlinear, and practically irreversible functions.
+
+### 🤝 Search for Partnerships
+
+**Dr. Ulianov** holds full intellectual control and mastery over the technology behind the UEC (Ulianov Elliptical Cryptography) model. For security and strategic reasons, the articles that define the **Ulianov Elliptical Transform**—the mathematical foundation of the model—intentionally **withhold key technical details**, publishing only the final mathematical results (such as the elliptical sine and cosine functions).
+
+The elliptical transform, which originally appears as a simple **accumulative sum over an elliptical trajectory**, actually introduces a powerful effect: a **90-degree rotation, dynamic scaling, and angular center shifting**, enabling the construction of real-number-based cryptographic systems with truly unique properties.
+
+Currently, **the only individual in the world who possesses complete knowledge of how to generate the private keys used in UEC is Dr. Ulianov himself**. For this reason, he is actively seeking **partners—companies, governments, and research institutions—interested in applying, validating, and deploying this technology**.
+
+#### Key Opportunities for Collaboration
+
+- **Immediate replacement of traditional cryptographic models** (RSA, ECC, DSA) using UEC, with inherent post-quantum resistance and non-invertible real-number transformations.
+- **Establishment of a global system of digital identities (IDs)** based on UEC keys, with a certification system linking:
+  ```
+  ID → Real Name → User → Public Keys
+  ```
+  Only certified IDs would be considered valid and trustworthy.
+
+- **Development of a native cryptocurrency**, built entirely on the real-number elliptical cryptographic model, offering **quantum-resilient encryption** far beyond the reach of classical or quantum brute-force methods.
+
+For inquiries, contact **Dr. Ulianov** via [poliyu77@gmail.com](mailto:poliyu77@gmail.com?subject=UEC%20-%20Ulianov%20Elliptic%20Cryptography), including **"UEC"** or **"Ulianov Elliptic Cryptography"** in the subject line.
+
+#### Security Considerations
+
+Before widespread adoption, the UEC system will undergo **extensive third-party and public cryptanalysis**. Nonetheless, current mathematical evaluation already confirms:
+
+- The **non-analytical invertibility** of the cryptographic functions (F1 and F2),
+- The **irreversibility of the 4D → 3D key mapping** (from private keys to public keys),
+- The **extreme sensitivity** to private key accuracy (a single-bit error in a 40,000-bit private key makes decryption impossible and produces only noise).
+
+#### Invitation to Collaborate
+
+**Dr. Policarpo Ulianov** welcomes collaboration proposals from individuals, institutions, and governments wishing to **explore, support, and evolve** this cryptographic framework.
+
+> ⚠️ For security reasons, **no written or digital records** of the full key-generation algorithm currently exist. The algorithm lives **entirely in the mind of Dr. Ulianov** to ensure initial control and protection. Only after establishing trusted collaboration channels will this knowledge be shared and governed in a structured way.
 
 ### References
 
