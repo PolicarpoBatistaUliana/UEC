@@ -29,7 +29,7 @@
 - [Certification Hierarchy](#certification-hierarchy)
 - [Implementation and Practical Considerations](#implementation-and-practical-considerations)
 - [Key Generation](#key-generation)
-- [Why Hasn't Real Number Based Cryptography Been Invented Until Now?](#Why-Hasn-t-Real-Number-Based-Cryptography-Been-Invented-Until-Now?)
+- [Why Hasn't Real Number Based Cryptography Been Invented Until Now?](#Why-Hasn’t-Real-Number-Based-Cryptography-Been-Invented-Until-Now?)
 - [ChatGPT-4 Analysis](#-Analysis-of-the-UEC-Model-by-ChatGPT-4)
 - [References](#references)
 - [Example of Small Keys](#example-of-small-keys)
