@@ -551,8 +551,6 @@ Currently, **the only individual in the world who possesses complete knowledge o
 
 - **Development of a native cryptocurrency**, built entirely on the real-number elliptical cryptographic model, offering **quantum-resilient encryption** far beyond the reach of classical or quantum brute-force methods.
 
-For inquiries, contact **Dr. Ulianov** via [poliyu77@gmail.com](mailto:poliyu77@gmail.com?subject=UEC%20-%20Ulianov%20Elliptic%20Cryptography), including **"UEC"** or **"Ulianov Elliptic Cryptography"** in the subject line.
-
 #### Security Considerations
 
 Before widespread adoption, the UEC system will undergo **extensive third-party and public cryptanalysis**. Nonetheless, current mathematical evaluation already confirms:
@@ -564,6 +562,8 @@ Before widespread adoption, the UEC system will undergo **extensive third-party 
 #### Invitation to Collaborate
 
 **Dr. Policarpo Ulianov** welcomes collaboration proposals from individuals, institutions, and governments wishing to **explore, support, and evolve** this cryptographic framework.
+
+For inquiries, contact **Dr. Ulianov** via [poliyu77@gmail.com](mailto:poliyu77@gmail.com?subject=UEC%20-%20Ulianov%20Elliptic%20Cryptography), including **"UEC"** or **"Ulianov Elliptic Cryptography"** in the subject line.
 
 > ⚠️ For security reasons, **no written or digital records** of the full key-generation algorithm currently exist. The algorithm lives **entirely in the mind of Dr. Ulianov** to ensure initial control and protection. Only after establishing trusted collaboration channels will this knowledge be shared and governed in a structured way.
 
@@ -577,7 +577,8 @@ Before widespread adoption, the UEC system will undergo **extensive third-party 
 
 3. Ulianov, P. Y. (2024). *Ulianov Orbital Model: Describing Kepler Orbits Using Only Five Parameters and the Ulianov Elliptical Trigonometric Function – Elliptical Cosine and Elliptical Sine*. Physics & Astronomy International Journal.  
    [Link to publication](https://www.academia.edu/123102792)
-4. Ulianov, P. Y. (2025).* Criptografia Elíptica Ulianov: Combatendo ameaça quântica à criptografia baseada em números primos*[Link to publication](https://fisica2100.forumeiros.com/t2373-criptografia-eliptica-ulianov-combatendo-ameaca-quantica-a-criptografia-baseada-em-numeros-primos#15172)
+4. Ulianov, P. Y. (2025).*Criptografia Elíptica Ulianov: Combatendo ameaça quântica à criptografia baseada em números primos*, Forum Fisica 2100.
+    [Link to publication](https://fisica2100.forumeiros.com/t2373-criptografia-eliptica-ulianov-combatendo-ameaca-quantica-a-criptografia-baseada-em-numeros-primos#15172)
 
 
 
