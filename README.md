@@ -577,6 +577,9 @@ Before widespread adoption, the UEC system will undergo **extensive third-party 
 
 3. Ulianov, P. Y. (2024). *Ulianov Orbital Model: Describing Kepler Orbits Using Only Five Parameters and the Ulianov Elliptical Trigonometric Function – Elliptical Cosine and Elliptical Sine*. Physics & Astronomy International Journal.  
    [Link to publication](https://www.academia.edu/123102792)
+4. Ulianov, P. Y. (2025).* Criptografia Elíptica Ulianov: Combatendo ameaça quântica à criptografia baseada em números primos*[Link to publication](https://fisica2100.forumeiros.com/t2373-criptografia-eliptica-ulianov-combatendo-ameaca-quantica-a-criptografia-baseada-em-numeros-primos#15172)
+
+
 
 
 
