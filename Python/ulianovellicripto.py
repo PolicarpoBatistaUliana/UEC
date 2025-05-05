@@ -1,4 +1,4 @@
-from mpmath import mp, sqrt, sin, cos,acos, radians, mpf,fabs
+from mpmath import mp, sqrt, sin, cos,acos,  mpf,fabs
 from datetime import datetime, timedelta
 import numpy as np
 import sys
@@ -558,7 +558,6 @@ def conv_file_str_dig3(directory, filename):
     print(f"[OK] File successfully decoded: {len(coded_content)} bytes")
     return coded_content, len(coded_content), len(content)
 
-from mpmath import mp, sqrt, cos, radians
 
 #Simple crypt rotine used only to teste Kpub1, Kpub2 keys
 def tst_F1_crypts(Alpha, Kpub1, Kpub2, K_ID):
@@ -616,7 +615,7 @@ def F2_7keys_decrypts(DX, Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de, DX_base, K_ID
     #print(f"Alpha={str(Alpha)[:60]}")
     x_data = Kpriv_x * (mp.cos(mp.radians(Alpha)) - 1) + Kpriv_x - mp.sqrt(Kpriv_x**2 - Kpriv_y**2)
     y_data = Kpriv_y * mp.sin(mp.radians(Alpha))
-    de_crip = sqrt(x_data**2 + y_data**2)+Kpriv_de
+    de_crip = mp.sqrt(x_data**2 + y_data**2)+Kpriv_de
     return de_crip
 
 def F1_7keys_decrypts(de_crip, Kpub1, Kpub2, Kpub3, K_ID):
@@ -638,7 +637,7 @@ def F1_7keys_decrypts(de_crip, Kpub1, Kpub2, Kpub3, K_ID):
     Alpha = mp.degrees(mp.acos(cos_alpha)) 
     #print(f"Alpha={str(Alpha)[:60]}")
     Alpha_rad = mp.radians(Alpha)
-    DX = -sqrt(Kpub1 + mp.cos(Alpha_rad)**2 + Kpub2 * mp.cos(Alpha_rad))
+    DX = -mp.sqrt(Kpub1 + mp.cos(Alpha_rad)**2 + Kpub2 * mp.cos(Alpha_rad))
     return DX
     
 
@@ -666,7 +665,6 @@ def F2_7keys_crypts(DX,  Kpriv_alpha,  Kpriv_x,  Kpriv_y,Kpriv_de, K_ID):
     de_crip = mp.sqrt(x_data**2 + y_data**2)+Kpriv_de+K_ID
     return de_crip
 
-  
   
 
 def encrypt_with_private_key(
