@@ -590,8 +590,8 @@ def F1_7keys_crypts(de_crip, Kpub1, Kpub2, Kpub3, DX_base, K_ID):
         mpf: Encrypted value DX (used in the elliptic encryption process).
     """
     cos_alpha = de_crip * Kpub3 
-    Alpha_rad = acos(cos_alpha) 
-    DX = K_ID - DX_base - sqrt(Kpub1 + cos(Alpha_rad)**2 + Kpub2 * cos(Alpha_rad))
+    Alpha_rad = mp.acos(cos_alpha) 
+    DX = K_ID - DX_base - mp.sqrt(Kpub1 + mp.cos(Alpha_rad)**2 + Kpub2 * mp.cos(Alpha_rad))
     return DX
 
 
@@ -614,8 +614,8 @@ def F2_7keys_decrypts(DX, Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de, DX_base, K_ID
     cos_Alpha = DX + DX_base + Kpriv_alpha - K_ID
     Alpha = mp.degrees(acos(cos_Alpha))
     #print(f"Alpha={str(Alpha)[:60]}")
-    x_data = Kpriv_x * (cos(mp.radians(Alpha)) - 1) + Kpriv_x - mp.sqrt(Kpriv_x**2 - Kpriv_y**2)
-    y_data = Kpriv_y * sin(mp.radians(Alpha))
+    x_data = Kpriv_x * (mp.cos(mp.radians(Alpha)) - 1) + Kpriv_x - mp.sqrt(Kpriv_x**2 - Kpriv_y**2)
+    y_data = Kpriv_y * mp.sin(mp.radians(Alpha))
     de_crip = sqrt(x_data**2 + y_data**2)+Kpriv_de
     return de_crip
 
@@ -638,7 +638,7 @@ def F1_7keys_decrypts(de_crip, Kpub1, Kpub2, Kpub3, K_ID):
     Alpha = mp.degrees(acos(cos_alpha)) 
     #print(f"Alpha={str(Alpha)[:60]}")
     Alpha_rad = mp.radians(Alpha)
-    DX = -sqrt(Kpub1 + cos(Alpha_rad)**2 + Kpub2 * cos(Alpha_rad))
+    DX = -sqrt(Kpub1 + mp.cos(Alpha_rad)**2 + Kpub2 * mp.cos(Alpha_rad))
     return DX
     
 
@@ -658,12 +658,12 @@ def F2_7keys_crypts(DX,  Kpriv_alpha,  Kpriv_x,  Kpriv_y,Kpriv_de, K_ID):
         mpf: Encrypted elliptic distance (de_crip).
     """
     cos_Alpha = DX + Kpriv_alpha 
-    Alpha = mp.degrees(acos(cos_Alpha)) 
+    Alpha = mp.degrees(mp.acos(cos_Alpha)) 
     #print(f"Alpha={str(Alpha)[:60]}")
   
-    x_data =  Kpriv_x * (cos(mp.radians(Alpha)) - 1) +  Kpriv_x - mp.sqrt(Kpriv_x**2 - Kpriv_y**2)
-    y_data =  Kpriv_y * sin(mp.radians(Alpha))
-    de_crip = sqrt(x_data**2 + y_data**2)+Kpriv_de+K_ID
+    x_data =  Kpriv_x * (mp.cos(mp.radians(Alpha)) - 1) +  Kpriv_x - mp.sqrt(Kpriv_x**2 - Kpriv_y**2)
+    y_data =  Kpriv_y * mp.sin(mp.radians(Alpha))
+    de_crip = mp.sqrt(x_data**2 + y_data**2)+Kpriv_de+K_ID
     return de_crip
 
   
@@ -932,6 +932,7 @@ def decrypt_with_private_key(data_7keys_Crip_str,  Kpriv_alpha_str,  Kpriv_x_str
     mp.dps = original_precision
     return decod_Alpha_str, data_rec_dig3, Head_num_str_rec, Head_str_rec
 
+
 def calculate_pub_priv_keys(Ke_str, R0_str, K_ID_str, num_digits):
     """
     Calcula as chaves públicas (Kpub1–Kpub3) e privadas ( Kpriv_alpha,  Kpriv_x,  Kpriv_y).
@@ -993,6 +994,7 @@ def calculate_pub_priv_keys(Ke_str, R0_str, K_ID_str, num_digits):
     exit(0)
  
     return  str(Kpub1),str(Kpub2),str(Kpub3),str(Kpriv_de),str(Kpriv_alpha),str( Kpriv_x),str( Kpriv_y)
+
 
 def test_keys(
     Kpub1_str, Kpub2_str, Kpub3_str,
