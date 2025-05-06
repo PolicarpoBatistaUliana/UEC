@@ -1,6 +1,7 @@
 📰 Brazilian Scientist Develops Unbreakable Cryptography Algorithm
 Against Quantum Computers
-###Innovation proposes a secure alternative to RSA and promises to safeguard digital privacy in the quantum computing era.
+
+Innovation proposes a secure alternative to RSA and promises to safeguard digital privacy in the quantum computing era.
 
 New York, 2025 — In a global scenario of growing concern over digital security, a Brazilian scientist may have found the key to the future of cryptography.
 
