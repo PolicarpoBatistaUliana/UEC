@@ -1,4 +1,4 @@
-from mpmath import mp, sqrt, sin, cos,acos, radians, mpf,fabs
+from mpmath import mp, sqrt, sin, cos,acos,  mpf,fabs
 from datetime import datetime, timedelta
 import numpy as np
 import sys
@@ -558,7 +558,6 @@ def conv_file_str_dig3(directory, filename):
     print(f"[OK] File successfully decoded: {len(coded_content)} bytes")
     return coded_content, len(coded_content), len(content)
 
-from mpmath import mp, sqrt, cos, radians
 
 #Simple crypt rotine used only to teste Kpub1, Kpub2 keys
 def tst_F1_crypts(Alpha, Kpub1, Kpub2, K_ID):
@@ -574,7 +573,7 @@ def tst_F2_decrypts(DX, Kpriv_alpha, K_ID):
 
 
 
-def F1_7keys_crypts(de_crip, Kpub1, Kpub2, Kpub3, DX_base, K_ID):
+def F1_3keys_crypts(de_crip, Kpub1, Kpub2, Kpub3, DX_base, K_ID):
     """
     Encrypts an angle Alpha into a DX value using elliptic public key parameters.
 
@@ -590,12 +589,12 @@ def F1_7keys_crypts(de_crip, Kpub1, Kpub2, Kpub3, DX_base, K_ID):
         mpf: Encrypted value DX (used in the elliptic encryption process).
     """
     cos_alpha = de_crip * Kpub3 
-    Alpha_rad = acos(cos_alpha) 
-    DX = K_ID - DX_base - sqrt(Kpub1 + cos(Alpha_rad)**2 + Kpub2 * cos(Alpha_rad))
+    Alpha_rad = mp.acos(cos_alpha) 
+    DX = K_ID - DX_base - mp.sqrt(Kpub1 + mp.cos(Alpha_rad)**2 + Kpub2 * mp.cos(Alpha_rad))
     return DX
 
 
-def F2_7keys_decrypts(DX, Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de, DX_base, K_ID):
+def F2_4keys_decrypts(DX, Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de, DX_base, K_ID):
     """
     Decrypts the encrypted elliptic DX value into an angle Alpha using the private key components.
 
@@ -612,14 +611,14 @@ def F2_7keys_decrypts(DX, Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de, DX_base, K_ID
         Alpha (mpf): Decrypted angle in degrees.
     """
     cos_Alpha = DX + DX_base + Kpriv_alpha - K_ID
-    Alpha = mp.degrees(acos(cos_Alpha))
+    Alpha = mp.degrees(mp.acos(cos_Alpha))
     #print(f"Alpha={str(Alpha)[:60]}")
-    x_data = Kpriv_x * (cos(mp.radians(Alpha)) - 1) + Kpriv_x - mp.sqrt(Kpriv_x**2 - Kpriv_y**2)
-    y_data = Kpriv_y * sin(mp.radians(Alpha))
-    de_crip = sqrt(x_data**2 + y_data**2)+Kpriv_de
+    x_data = Kpriv_x * (mp.cos(mp.radians(Alpha)) - 1) + Kpriv_x - mp.sqrt(Kpriv_x**2 - Kpriv_y**2)
+    y_data = Kpriv_y * mp.sin(mp.radians(Alpha))
+    de_crip = mp.sqrt(x_data**2 + y_data**2)+Kpriv_de
     return de_crip
 
-def F1_7keys_decrypts(de_crip, Kpub1, Kpub2, Kpub3, K_ID):
+def F1_3keys_decrypts(de_crip, Kpub1, Kpub2, Kpub3, K_ID):
     """
     Decrypts a DX value using non-invertible elliptic decoding with public keys.
 
@@ -635,14 +634,14 @@ def F1_7keys_decrypts(de_crip, Kpub1, Kpub2, Kpub3, K_ID):
         mpf: Decrypted DX value.
     """
     cos_alpha = (de_crip-K_ID) * Kpub3
-    Alpha = mp.degrees(acos(cos_alpha)) 
+    Alpha = mp.degrees(mp.acos(cos_alpha)) 
     #print(f"Alpha={str(Alpha)[:60]}")
     Alpha_rad = mp.radians(Alpha)
-    DX = -sqrt(Kpub1 + cos(Alpha_rad)**2 + Kpub2 * cos(Alpha_rad))
+    DX = -mp.sqrt(Kpub1 + mp.cos(Alpha_rad)**2 + Kpub2 * mp.cos(Alpha_rad))
     return DX
     
 
-def F2_7keys_crypts(DX,  Kpriv_alpha,  Kpriv_x,  Kpriv_y,Kpriv_de, K_ID):
+def F2_4keys_crypts(DX,  Kpriv_alpha,  Kpriv_x,  Kpriv_y,Kpriv_de, K_ID):
     """
     Encrypts a DX value using a complex non-invertible private key scheme.
 
@@ -658,15 +657,14 @@ def F2_7keys_crypts(DX,  Kpriv_alpha,  Kpriv_x,  Kpriv_y,Kpriv_de, K_ID):
         mpf: Encrypted elliptic distance (de_crip).
     """
     cos_Alpha = DX + Kpriv_alpha 
-    Alpha = mp.degrees(acos(cos_Alpha)) 
+    Alpha = mp.degrees(mp.acos(cos_Alpha)) 
     #print(f"Alpha={str(Alpha)[:60]}")
   
-    x_data =  Kpriv_x * (cos(mp.radians(Alpha)) - 1) +  Kpriv_x - mp.sqrt(Kpriv_x**2 - Kpriv_y**2)
-    y_data =  Kpriv_y * sin(mp.radians(Alpha))
-    de_crip = sqrt(x_data**2 + y_data**2)+Kpriv_de+K_ID
+    x_data =  Kpriv_x * (mp.cos(mp.radians(Alpha)) - 1) +  Kpriv_x - mp.sqrt(Kpriv_x**2 - Kpriv_y**2)
+    y_data =  Kpriv_y * mp.sin(mp.radians(Alpha))
+    de_crip = mp.sqrt(x_data**2 + y_data**2)+Kpriv_de+K_ID
     return de_crip
 
-  
   
 
 def encrypt_with_private_key(
@@ -728,7 +726,7 @@ def encrypt_with_private_key(
 
     # Encrypt using the updated F2 function
  
-    de_Crip = F2_7keys_crypts(DX, Kpriv_alpha, Kpriv_x, Kpriv_y,Kpriv_de,K_ID)
+    de_Crip = F2_4keys_crypts(DX, Kpriv_alpha, Kpriv_x, Kpriv_y,Kpriv_de,K_ID)
  
    
     str_de_Crip =str(de_Crip)
@@ -771,7 +769,7 @@ def decrypt_with_public_key(de_crip_str, Kpub1_str, Kpub2_str, Kpub3_str,
     K_ID = mpf(K_ID_str)
 
     # Decrypt DX
-    Decod_X = fabs(F1_7keys_decrypts(de_crip, Kpub1, Kpub2, Kpub3,  K_ID) - DX_base)
+    Decod_X = fabs( F1_3keys_decrypts(de_crip, Kpub1, Kpub2, Kpub3,  K_ID) - DX_base)
     decod_7keys_str = str(Decod_X) + "000000000000"
 
     if MSG:
@@ -855,7 +853,7 @@ def encrypt_with_public_key(Dad_Num_str, Head_NUM_str, Head_str,
         print(f"de_data to encrypt = {de_data}")
 
     # Encrypt using public keys
-    DX_crip = F1_7keys_crypts(de_data, Kpub1, Kpub2, Kpub3, DX_base, K_ID)
+    DX_crip = F1_3keys_crypts(de_data, Kpub1, Kpub2, Kpub3, DX_base, K_ID)
     mp.dps = original_precision
     return str(DX_crip)
 
@@ -895,7 +893,7 @@ def decrypt_with_private_key(data_7keys_Crip_str,  Kpriv_alpha_str,  Kpriv_x_str
     K_ID = mpf(K_ID_str)
 
     # Recover Alpha
-    Alpha_rec = F2_7keys_decrypts(DX,  Kpriv_alpha,  Kpriv_x,  Kpriv_y,Kpriv_de, DX_base, K_ID)
+    Alpha_rec = F2_4keys_decrypts(DX,  Kpriv_alpha,  Kpriv_x,  Kpriv_y,Kpriv_de, DX_base, K_ID)
     decod_Alpha_str = str(Alpha_rec) + "000000000000"
 
     if len(decod_Alpha_str) < params.pos_data:
@@ -932,6 +930,7 @@ def decrypt_with_private_key(data_7keys_Crip_str,  Kpriv_alpha_str,  Kpriv_x_str
     mp.dps = original_precision
     return decod_Alpha_str, data_rec_dig3, Head_num_str_rec, Head_str_rec
 
+
 def calculate_pub_priv_keys(Ke_str, R0_str, K_ID_str, num_digits):
     """
     Calcula as chaves públicas (Kpub1–Kpub3) e privadas ( Kpriv_alpha,  Kpriv_x,  Kpriv_y).
@@ -966,10 +965,10 @@ def calculate_pub_priv_keys(Ke_str, R0_str, K_ID_str, num_digits):
     K3_Pub_denominator = 2 - (2 / (Ke * (1 / Ke - 2)))
     K3 = K3_Pub_denominator * KX**2
     abs_Ke_KX = (Ke - 2) * KX**2
-    K0 = abs_Ke_KX 
-    K1 = abs_Ke_KX / ((mpf(1) / Ke) - 2)
+    K0 = abs_Ke_KX / ((mpf(1) / Ke) - 2)
     K2 = abs_Ke_KX / sqrt(Ke * ((mpf(1) / Ke) - 2))
-    
+    K1 = abs_Ke_KX - K2
+
     Kpub2 = (2*K0 + K1) / (2*K2 - K0*K1)
     Kpub1 = ( K1 * K2**2) / (2*K2 - K0*K1)
     Kpriv_alpha = K3 / K_ID
@@ -993,6 +992,7 @@ def calculate_pub_priv_keys(Ke_str, R0_str, K_ID_str, num_digits):
     exit(0)
  
     return  str(Kpub1),str(Kpub2),str(Kpub3),str(Kpriv_de),str(Kpriv_alpha),str( Kpriv_x),str( Kpriv_y)
+
 
 def test_keys(
     Kpub1_str, Kpub2_str, Kpub3_str,
@@ -1050,10 +1050,10 @@ def test_keys(
     #print(f"y_data={str(y_data)[:60]}")
     De_base = sqrt(x_data**2 + y_data**2)
     #print(f"De_base={str(De_base)[:60]}")
-    DX_crip = F1_7keys_crypts(De_base, Kpub1, Kpub2, Kpub3, mpf("1.0"), K_ID)
+    DX_crip = F1_3keys_crypts(De_base, Kpub1, Kpub2, Kpub3, mpf("1.0"), K_ID)
     #print(f"DX_crip={str(DX_crip)[:60]}")
     # Etapa de decriptografia com F2
-    de_rec = F2_7keys_decrypts(DX_crip, Kpriv_alpha, Kpriv_x, Kpriv_y,Kpriv_de,mpf("1.0"), K_ID)
+    de_rec = F2_4keys_decrypts(DX_crip, Kpriv_alpha, Kpriv_x, Kpriv_y,Kpriv_de,mpf("1.0"), K_ID)
     #print(f"de_rec={str(de_rec)[:60]}")
    
     # Verifica erro absoluto
@@ -1064,19 +1064,19 @@ def test_keys(
         #print("Erro testando TODAS AS CHAVES")
         mp.dps = original_dps
         return False, None,None
-    #print("TESTE DE F2_7keys_crypts e F1_7keys_decrypts ")
+    #print("TESTE DE F2_4keys_crypts e F1_3keys_decrypts ")
     DX_base=DX_X
     #print(f"DX_base={str(DX_base)[:60]}")
-    de_crip = F2_7keys_crypts(DX_base, Kpriv_alpha, Kpriv_x, Kpriv_y,Kpriv_de, K_ID)
+    de_crip = F2_4keys_crypts(DX_base, Kpriv_alpha, Kpriv_x, Kpriv_y,Kpriv_de, K_ID)
     #print(f"de_crip={str(de_crip)[:60]}")
    
-    Decod_DX = F1_7keys_decrypts(de_crip, Kpub1, Kpub2, Kpub3,  K_ID)
+    Decod_DX = F1_3keys_decrypts(de_crip, Kpub1, Kpub2, Kpub3,  K_ID)
     #print(f"Decod_DX={str(Decod_DX)[:60]}")
     #Verifica erro absoluto
     erro = fabs(Decod_DX - DX_base)
     #print(f"erro={str(erro+1)[:60]}")
     if erro > mpf("1e-2400"):
-        #print("Erro testando F2_7keys_crypts e F1_7keys_decrypts")
+        #print("Erro testando F2_4keys_crypts e F1_3keys_decrypts")
         mp.dps = original_dps
         return False, None,None
     dx_base_str = str(DX_base)[:20]
