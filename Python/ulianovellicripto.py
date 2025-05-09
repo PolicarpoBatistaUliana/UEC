@@ -588,9 +588,8 @@ def F1_3keys_crypts(de_crip, Kpub1, Kpub2, Kpub3, DX_base, K_ID):
     Returns:
         mpf: Encrypted value DX (used in the elliptic encryption process).
     """
-    cos_alpha = de_crip * Kpub3 
-    Alpha_rad = mp.acos(cos_alpha) 
-    DX = K_ID - DX_base - mp.sqrt(Kpub1 + mp.cos(Alpha_rad)**2 + Kpub2 * mp.cos(Alpha_rad))
+    Alpha = mp.acos(de_crip * Kpub3 ) 
+    DX = K_ID - DX_base - mp.sqrt(Kpub1 + mp.cos(Alpha)**2 + Kpub2 * mp.cos(Alpha))
     return DX
 
 
@@ -611,35 +610,13 @@ def F2_4keys_decrypts(DX, Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de, DX_base, K_ID
         Alpha (mpf): Decrypted angle in degrees.
     """
     cos_Alpha = DX + DX_base + Kpriv_alpha - K_ID
-    Alpha = mp.degrees(mp.acos(cos_Alpha))
-    #print(f"Alpha={str(Alpha)[:60]}")
-    x_data = Kpriv_x * (mp.cos(mp.radians(Alpha)) - 1) + Kpriv_x - mp.sqrt(Kpriv_x**2 - Kpriv_y**2)
-    y_data = Kpriv_y * mp.sin(mp.radians(Alpha))
+    Alpha = mp.acos(cos_Alpha)
+    x_data = Kpriv_x * (mp.cos(Alpha) - 1) + Kpriv_x - mp.sqrt(Kpriv_x**2 - Kpriv_y**2)
+    y_data = Kpriv_y * mp.sin(Alpha)
     de_crip = mp.sqrt(x_data**2 + y_data**2)+Kpriv_de
     return de_crip
 
-def F1_3keys_decrypts(de_crip, Kpub1, Kpub2, Kpub3, K_ID):
-    """
-    Decrypts a DX value using non-invertible elliptic decoding with public keys.
 
-    Args:
-        de_crip (mpf): Encrypted value (distance).
-        Kpub1 (mpf): Public key coefficient 1.
-        Kpub2 (mpf): Public key coefficient 2.
-        Kpub3 (mpf): Precomputed = (Ue - 1)/R0 ÷ [Ue - (1/(2 - Ue))].
-        Alpha_base (mpf): Base angle in degrees.
-        K_ID (mpf): Identifier key.
-
-    Returns:
-        mpf: Decrypted DX value.
-    """
-    cos_alpha = (de_crip-K_ID) * Kpub3
-    Alpha = mp.degrees(mp.acos(cos_alpha)) 
-    #print(f"Alpha={str(Alpha)[:60]}")
-    Alpha_rad = mp.radians(Alpha)
-    DX = -mp.sqrt(Kpub1 + mp.cos(Alpha_rad)**2 + Kpub2 * mp.cos(Alpha_rad))
-    return DX
-    
 
 def F2_4keys_crypts(DX,  Kpriv_alpha,  Kpriv_x,  Kpriv_y,Kpriv_de, K_ID):
     """
@@ -656,16 +633,32 @@ def F2_4keys_crypts(DX,  Kpriv_alpha,  Kpriv_x,  Kpriv_y,Kpriv_de, K_ID):
     Returns:
         mpf: Encrypted elliptic distance (de_crip).
     """
-    cos_Alpha = DX + Kpriv_alpha 
-    Alpha = mp.degrees(mp.acos(cos_Alpha)) 
-    #print(f"Alpha={str(Alpha)[:60]}")
-  
-    x_data =  Kpriv_x * (mp.cos(mp.radians(Alpha)) - 1) +  Kpriv_x - mp.sqrt(Kpriv_x**2 - Kpriv_y**2)
-    y_data =  Kpriv_y * mp.sin(mp.radians(Alpha))
+    Alpha = mp.acos(DX + Kpriv_alpha)
+    x_data =  Kpriv_x * (mp.cos(Alpha) - 1) +  Kpriv_x - mp.sqrt(Kpriv_x**2 - Kpriv_y**2)
+    y_data =  Kpriv_y * mp.sin(Alpha)
     de_crip = mp.sqrt(x_data**2 + y_data**2)+Kpriv_de+K_ID
     return de_crip
 
-  
+
+def F1_3keys_decrypts(de_crip, Kpub1, Kpub2, Kpub3, K_ID):
+    """
+    Decrypts a DX value using non-invertible elliptic decoding with public keys.
+
+    Args:
+        de_crip (mpf): Encrypted value (distance).
+        Kpub1 (mpf): Public key coefficient 1.
+        Kpub2 (mpf): Public key coefficient 2.
+        Kpub3 (mpf): Precomputed = (Ue - 1)/R0 ÷ [Ue - (1/(2 - Ue))].
+        Alpha_base (mpf): Base angle in degrees.
+        K_ID (mpf): Identifier key.
+
+    Returns:
+        mpf: Decrypted DX value.
+    """
+    Alpha = mp.acos((de_crip-K_ID) * Kpub3)
+    DX = -mp.sqrt(Kpub1 + mp.cos(Alpha)**2 + Kpub2 * mp.cos(Alpha))
+    return DX
+   
 
 def encrypt_with_private_key(
     Dad_Num_str, Head_NUM_str, Head_str,
@@ -718,10 +711,7 @@ def encrypt_with_private_key(
     DX = DX_base - DX_data
     
 
-    if 1 or MSG:
-        print(f"Head_NUM = {Head_NUM} @ 10^-{params.pos_head_num}")
-        print(f"Num_Head_str = {Num_Head_str} @ 10^-{params.pos_head_str}")
-        print(f"Dad_Num = {str(Dad_Num)[:60]} @ 10^-{params.pos_data}")
+    if MSG:
         print(f"DX_data = {str(DX_data)[:60]}")
 
     # Encrypt using the updated F2 function
@@ -889,7 +879,6 @@ def decrypt_with_private_key(data_7keys_Crip_str,  Kpriv_alpha_str,  Kpriv_x_str
     Kpriv_y = mpf( Kpriv_y_str)
     DX_base = mpf(DX_base_str)
     Kpriv_de = mpf(DX_de_str)
-    Alpha_base = mpf(Alpha_base_str)
     K_ID = mpf(K_ID_str)
 
     # Recover Alpha
@@ -933,21 +922,18 @@ def decrypt_with_private_key(data_7keys_Crip_str,  Kpriv_alpha_str,  Kpriv_x_str
 
 def calculate_pub_priv_keys(Ke_str, R0_str, K_ID_str, num_digits):
     """
-    Calcula as chaves públicas (Kpub1–Kpub3) e privadas ( Kpriv_alpha,  Kpriv_x,  Kpriv_y).
-
-    Entradas:
-    - Ke_str (str): Valor Ke de entropia.
-    - K_ID_str (str): Identificador da chave.
-    - num_digits (int): Precisão numérica.
-
-    Retorna:
-    - dict com:
-        - 'Kpub1': componente público 1 (original)
-        - 'Kpub2': componente público 2 (original)
-        - 'Kpub3': inverso da elipse misturando R0 com Ue num valor único.
-        - ' Kpriv_alpha': componente de chave privada usada no cos(DX)
-        - ' Kpriv_x': parâmetro 'a' da elipse 
-        - ' Kpriv_y': parâmetro 'b' da elipse 
+    ESTA ROTINA ESTA ERRADA DE PROPÓSITO
+    SE TENTAREM USAR ISSO NAO VAI FUNCIONAR...
+    ENTRETANTO A COMPLEXXIDADE COMPUTACIONAL 
+    É QUASE IGUAL A ROTINA VERDADEIRA
+    A ROTINA VERDADEIRA HOJE EXISTE APENAS
+    NA MENTE DO DR. ULIANOV E SERÁ LIBERADA EM FASE POSTERIOR (EM 2026 OU 2027)
+    OU SERA LIBERADA EM 07/12/2030 QUE SE O DR. ULIANOV ESTIVER VIVO
+    NESTA DATA SERÁ O 64 ANIVERSARIO DELE. SE ELE ESTIVER MORTO ISSO VAI
+    SER DIVULGADO IGUAL NO GITHUB, FORUM FISICA 2100 E VARIOS OUTROS FORUNS
+    DE CRIPTOGRAFIA QUE EXISTEM NO MUNDO...
+    EM 07/12/2030 ESTA ROTINA VERDADEIRA TAMBEM SERA ENVIADA POR EMIL PARA VARIOS
+    ESPECIALISTAS EM CRIPTOGRAFI A JORNLISTAS ESPALHADOS PELO MUNDO. 
     """
 
     # Salva a precisão original e define a nova
@@ -960,38 +946,36 @@ def calculate_pub_priv_keys(Ke_str, R0_str, K_ID_str, num_digits):
     R0 = mpf(R0_str)
     
     # Chave pública original (Kpub2, Kpub1)
-    K_ID_Pub_denominator = Ke - (2 / (Ke * (1 / Ke - 2)))
+    K_ID_Pub_denominator = Ke**2(1 - (1 / (Ke * (1 / Ke - 2))))
     KX = K_ID / K_ID_Pub_denominator
-    K3_Pub_denominator = 2 - (2 / (Ke * (1 / Ke - 2)))
-    K3 = K3_Pub_denominator * KX**2
-    abs_Ke_KX = (Ke - 2) * KX**2
-    K0 = abs_Ke_KX / ((mpf(1) / Ke) - 2)
-    K2 = abs_Ke_KX / sqrt(Ke * ((mpf(1) / Ke) - 2))
-    K1 = abs_Ke_KX - K2
-
+    K3_Pub_denominator = 2 - (Ke**2 / (Ke * (1 / Ke - 2)))
+    K1 = K3_Pub_denominator * KX**2
+    K0 = K1 / ((mpf(1) / Ke**2) - 2)**2
+    K2 = K1 / sqrt(Ke**2 * ((mpf(1) / Ke**2) - 2))
+    K3 = (Ke - 2) * KX**2
+  
     Kpub2 = (2*K0 + K1) / (2*K2 - K0*K1)
     Kpub1 = ( K1 * K2**2) / (2*K2 - K0*K1)
     Kpriv_alpha = K3 / K_ID
 
     # Cálculo de Kpub3 e Kpub3 para a parte elíptica
-    Ue = Ke
-    KK2 = (Ue - 2) / R0
-    KK1 = (mpf("2") / (mpf("1") - Ue)) - mpf("2")
-    KK3 = Ue - (mpf("2") / (mpf("1") - Ue))
-    Kpub3 = KK2 / KK3
-    kp4 = KK1/KK3
-    Kpriv_de = - kp4 /Kpub3
+    KK1 = (mpf("2") / (mpf("1") - Ke)) - mpf("2")
+    KK2 = Ke - (mpf("2") / (mpf("1") - Ke))
+    KK3 = (Ke - 2) / R0
+    Kpub3 = KK3 / KK2
+    kp4 = KK1/KK2
+    Kpriv_de = - kp4 /KK3
      
     # Parâmetros elípticos a e b
-    Kpriv_x = R0 / (mpf("1") - Ue)
-    Kpriv_y = R0 / sqrt((mpf("1") / Ue) - mpf("2"))
+    Kpriv_x = R0 / (mpf("1") - Ke)**2
+    Kpriv_y = R0 / ((mpf("1") / Ke) - mpf("2"))
    
     # Restaura a precisão original
     mp.dps = original_dps
     print("This function cannot be used because the formulas for generating private keys have been modified for security and copyright reasons.")
     exit(0)
  
-    return  str(Kpub1),str(Kpub2),str(Kpub3),str(Kpriv_de),str(Kpriv_alpha),str( Kpriv_x),str( Kpriv_y)
+    return  str(Kpub3),str(Kpub2),str(Kpub1),str(Kpriv_alpha),str(Kpriv_de),str(Kpriv_y),str(Kpriv_x)
 
 
 def test_keys(

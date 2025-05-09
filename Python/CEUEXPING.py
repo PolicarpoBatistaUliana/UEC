@@ -33,7 +33,7 @@ def case_1(params, DX_base,De_base, alpha_base,
     print("Data encrypted with public key (only private key can decrypt):")
     encrypted_data = encrypt_with_public_key(encoded_text, header_number, header_string,
                                              DX_base, De_base,
-                                             Kpub1, Kpub2, Kpub3, K_ID, params)
+                                             Kpub1, Kpub2, Kpub3, K_ID, params,MSG=True)
     print(f"Encrypted data = {encrypted_data}")
 
     print("\nDecrypting with private key:")
@@ -78,7 +78,7 @@ def case_2(params, DX_base,De_base, alpha_base,
     encrypted_data = encrypt_with_private_key(
         encoded_text, header_number, header_string,
         Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de,
-        DX_base, alpha_base, K_ID, params
+        DX_base, alpha_base, K_ID, params,MSG=True
     )
 
     print(f"\nEncrypted data with private key: {encrypted_data}")
