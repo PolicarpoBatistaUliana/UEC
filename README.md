@@ -586,7 +586,7 @@ this would be equivalent to the private function:
 
 However, two main reasons make this impossible:
 
-* The value De becomes an argument to the cosine function, and the output of `F1_3Keys` depends on an equation that appears simple but has no analytic inverse.
+* The value De becomes an argument to a complex cosine function (Dx = sqrt(Kpub1 + cos(Alpha)^2 + Kpub2 * cos(Alpha))), and the output of `F1_3Keys` depends on this equation, that appears simple but has no know analytic inverse.
 * The only possible inverse is through **`Kpriv_alpha`** (i.e., `Alpha = acos(Dx + Kpriv_alpha)`), which means no alternative inverse is valid.
 
 If an alternative analytic inverse existed, it would have to violate the identity among the following functions:
@@ -607,14 +607,15 @@ F1(Alpha) = F2_Inv(Alpha)
 then:
 
 ```
+Inferse(F1(Alpha)) = Iverse(F2_Inv(Alpha))
 F1_Inv(Dx) = F2(Alpha)
 ```
 
-Therefore, **any inverse of F1\_3Keys would be functionally identical to F2**, which does not compromise the cryptographic model.
+Therefore, **any inverse of F1_3Keys would be functionally identical to F2**, which does not compromise the cryptographic model.
 
 ---
 
-**B - Numerically inverting the F1\_3Keys function**
+**B - Numerically inverting the F1_3Keys function**
 
 Numerical methods rely on interpolation and approximation, but they cannot reach the precision required. In UEC, data is embedded in extremely deep decimal positions (e.g., 2400 digits), making numeric recovery impractical.
 
