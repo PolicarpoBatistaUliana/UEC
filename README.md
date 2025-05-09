@@ -741,11 +741,11 @@ Moreover, there is a **critical entropy factor** embedded in the UEC model:
 
 Encryption begins with a **Dx value that includes, for example, 2000 leading zeros**, followed by **about 500 digits of data**, forming something like `1e-2500`.
 
-The resulting **De value then contains 2500 bits of pseudo-random noise**, into which the original information is embedded **holographically**.
+The resulting **De value then contains 2500 digits of pseudo-random noise**, into which the original information is embedded **holographically**.
 
 Trying to extract the data from this noise—by simply stripping the first 2000 digits and recovering the last 500—**violates basic principles of information entropy**.
 
-Worse still: the 400–500 digits that initially contained the data in `Dx` are **completely destroyed and dispersed across 2500 digits of `De`**, in a **non-localized and holographic** fashion.
+Worse still: the 500 digits that initially contained the data in `Dx` are **completely destroyed and dispersed across 2500 digits of `De`**, in a **non-localized and holographic** fashion.
 
 This means that the data is no longer present in any single region of the decimal expansion, but rather **diffused throughout the entire structure like an unrecognizable pattern**.
 
