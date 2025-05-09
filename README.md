@@ -383,8 +383,8 @@ def calculate_pub_priv_keys(Ke_str, R0_str, K_ID_str, num_digits):
 Moreover, the system involves nonlinear equations such as:
 
 ```
-Kpub1 = (K0² + K2²) / (K1² - K0²)
-Kpub2 = (2 * K2 * K1) / (K1² - K0²)
+Kpub1 = (K0 + K2) / (K1 - K0)
+Kpub2 = (K2 * K1²) / (K1 - K0)
 ```
 
 These equations do not yield analytical solutions, making symbolic inversion virtually impossible.
