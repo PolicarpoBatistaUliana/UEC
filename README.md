@@ -40,19 +40,64 @@
 
 #### Ulianov Elliptical Encryption Model
 
+The **Ulianov Elliptical Encryption Model (UEC)** is an advanced asymmetric encryption framework that leverages high-precision arithmetic (using the `mpmath` library) and Pi-based calculations to significantly increase cryptographic complexity and security. Unlike traditional models that rely on integer arithmetic, UEC uniquely operates entirely with real-number calculations.
+
+---
+
+#### Asymmetric Encryption Models
+
+An evolution of the UEC model over RSA is its full support for both fundamental modes of asymmetric cryptography:
+
+---
+
+##### Model 1: Public-Key Encryption, Private-Key Decryption
+
+* **Purpose**: Secure data storage. Anyone can encrypt data using the public key, but only the private key owner can decrypt and read the data.
+* **Typical Use Case**: Confidential communication where only the intended recipient should have access to the information.
+  **Note**: RSA is limited to this encryption mode.
+
+---
+
+##### Model 2: Private-Key Encryption, Public-Key Decryption
+
+* **Purpose**: Digital signature. Only the holder of the private key can encrypt (i.e., sign) the data, and anyone with the public key can verify its authenticity.
+* **Typical Use Case**: Signing documents to ensure integrity, authenticity, and non-repudiation.
+  **Note**: RSA does not support this mode directly. It relies on cryptographic workarounds to simulate digital signatures.
+
+The UEC model, however, naturally supports this form of encryption and even allows the data to remain encrypted using a private key while the corresponding public key:
+
+* Can be **kept hidden** or
+* **Distributed only to a select group**, or
+* **Released later**, such as posthumously in the case of a will.
+
+For instance, a user could sign a will using a newly generated private key, while the public key remains stored with a trusted law firm. After the person's death, the key is released (along with a certificate verifying its authenticity), enabling anyone to validate and decrypt the content.
+
+This method allows sensitive messages to be published in public view (e.g., on a shared website), while only people with access to the restricted public key can read the content encrypted with the private key.
+
+By contrast, in RSA, the signed message remains visible, and the public key is used only to validate the signature—not to keep the content itself encrypted.
+
+---
+
+#### Ulianov Elliptical Encryption Model
+
 The **Ulianov Elliptical Encryption Model** is an advanced asymmetric encryption framework leveraging high-precision arithmetic (via the `mpmath` library) and Pi-based calculations to enhance complexity and cryptographic security. This model uniquely uses real-number arithmetic rather than traditional integer-based cryptographic methods.
 
 #### Asymmetric Encryption Models
+An evolution of the UEC model in relation to the RSA model is that it fully supports the two possibilities that exist in asymmetric cryptography:
 
 ##### Model 1: Public-Key Encryption, Private-Key Decryption
 
 - **Purpose**: Secure data storage. Anyone can encrypt data using the public key, but only the owner of the private key can decrypt and read the data.
 - **Typical Use Case**: Confidential data exchange where the recipient is the sole entity authorized to access the information.
+Note: The RSA model only performs this type of encryption.
+
 
 ##### Model 2: Private-Key Encryption, Public-Key Decryption
 
 - **Purpose**: Digital signature. Only the holder of the private key can encrypt (sign) the data, ensuring authenticity when verified with the public key.
 - **Typical Use Case**: Digital signing of documents to guarantee authenticity and non-repudiation.
+Note: The RSA model does not perform this type of encryption, requiring some tricks to generate digital signatures. The UEC model opens up the possibility of keeping data encrypted with a private key hidden and can generate a signature scheme with a public key of limited use or that will remain hidden for a certain period of time. This would be very useful, for example, in the case of a will where the person signs the document with a new private key, while the public key is hidden (for example, with a law firm) to be revealed only after the person's death (along with the appropriate certificate that proves that it is a valid public key). This way, all heirs can receive a copy of the will but will only be able to open it when the public key is known. This also allows the leader of a group or organization to distribute public keys only to people within the group. The generated messages can be generated on a page with free access, but only those who have this "public key" with limited access will be able to read the content of the message encrypted with a private key.
+Note that in the RSA case the message is open and the public key is needed only to confirm the signature but does not hide the content that was signed.
 
 #### Program Workflow
 
