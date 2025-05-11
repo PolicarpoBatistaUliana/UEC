@@ -4,9 +4,9 @@
 ## 📘 Table of Contents
 
 - [Ulianov Elliptical Encryption Model](#ulianov-elliptical-encryption-model)
-- [Encryption Modes](#encryption-modes)
-  - [Mode 1: Public-Key Encryption, Private-Key Decryption](#mode-1-public-key-encryption-private-key-decryption)
-  - [Mode 2: Private-Key Encryption, Public-Key Decryption](#mode-2-private-key-encryption-public-key-decryption)
+- [Asymmetric Encryption Models](#asymmetric-encryption-models)
+  - [Model 1: Public-Key Encryption, Private-Key Decryption](#model-1-public-key-encryption-private-key-decryption)
+  - [Model 2: Private-Key Encryption, Public-Key Decryption](#model-2-private-key-encryption-public-key-decryption)
 - [Program Workflow](#program-workflow)
 - [Enhanced Key Protection](#enhanced-key-protection)
 - [Practical Applications](#practical-applications)
@@ -42,14 +42,14 @@
 
 The **Ulianov Elliptical Encryption Model** is an advanced asymmetric encryption framework leveraging high-precision arithmetic (via the `mpmath` library) and Pi-based calculations to enhance complexity and cryptographic security. This model uniquely uses real-number arithmetic rather than traditional integer-based cryptographic methods.
 
-#### Asymmetric Encryption Modes
+#### Asymmetric Encryption Models
 
-##### Mode 1: Public-Key Encryption, Private-Key Decryption
+##### Model 1: Public-Key Encryption, Private-Key Decryption
 
 - **Purpose**: Secure data storage. Anyone can encrypt data using the public key, but only the owner of the private key can decrypt and read the data.
 - **Typical Use Case**: Confidential data exchange where the recipient is the sole entity authorized to access the information.
 
-##### Mode 2: Private-Key Encryption, Public-Key Decryption
+##### Model 2: Private-Key Encryption, Public-Key Decryption
 
 - **Purpose**: Digital signature. Only the holder of the private key can encrypt (sign) the data, ensuring authenticity when verified with the public key.
 - **Typical Use Case**: Digital signing of documents to guarantee authenticity and non-repudiation.
