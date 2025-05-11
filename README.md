@@ -23,7 +23,7 @@
 - [Cryptographic Keys in UEC (Ulianov Elliptical Cryptography)](#cryptographic-keys-in-uec-ulianov-elliptical-cryptography)
   - [🟦 Public Keys (Kpub)](#-public-keys-kpub)
   - [🟩 Private Keys (Kpriv)](#-private-keys-kpriv)
-- [Advantages of Private-Key Encryption with Public-Key Decryption](#-advantages-of-private-key-encryption with-public-Key-decryption)
+- [Advantages of Private-Key Encryption with Public Key Decryption](#advantages-of-private-key-encryption-with-public-Key-decryption).
 - [Proposed Certification Scheme](#proposed-certification-scheme)
   - [1. Keeping Private Keys (KPriv) Secret](#1-keeping-private-keys-kpriv-secret)
   - [2. Ensuring Secure Association Between User IDs and Public Keys (KPub)](#2-ensuring-secure-association-between-user-ids-and-public-keys-kpub)
