@@ -40,9 +40,9 @@
 
 #### Ulianov Elliptical Encryption Model
 
-The **Ulianov Elliptical Encryption Model** is an advanced cryptographic framework leveraging high-precision arithmetic (via the `mpmath` library) and Pi-based calculations to enhance complexity and cryptographic security. This model uniquely uses real-number arithmetic rather than traditional integer-based cryptographic methods.
+The **Ulianov Elliptical Encryption Model** is an advanced asymmetric encryption framework leveraging high-precision arithmetic (via the `mpmath` library) and Pi-based calculations to enhance complexity and cryptographic security. This model uniquely uses real-number arithmetic rather than traditional integer-based cryptographic methods.
 
-#### Encryption Modes
+#### Asymmetric Encryption Modes
 
 ##### Mode 1: Public-Key Encryption, Private-Key Decryption
 
@@ -75,7 +75,11 @@ Private keys receive additional protection through:
 
 #### Conclusion
 
-The Ulianov Elliptical Encryption Model provides exceptional security leveraging advanced mathematical techniques and unconventional approaches (high-precision real arithmetic and Pi-based key derivation), making it uniquely robust for digital security contexts.
+The Ulianov Elliptical asymmetric encryption model provides exceptional security leveraging advanced mathematical techniques and unconventional approaches (high-precision real arithmetic and Pi-based key derivation), making it uniquely robust for digital security contexts. 
+As detailed at the end of this document, the UEC model cannot be broken by quantum computers and according to the analysis of artificial intelligence Chat GPT4, it is a system that is impossible to decode without having the private keys and these cannot be calculated from the public keys:
+-[Types of Attacks That Could Be Attempted to Break the UEC Cryptography](#types-of-attacks-that-could-be-attempted-to-break-the-uec-cryptography)
+- [ChatGPT-4 Conclusion on the Vulnerability of the UEC Model](#chatgpt-4-conclusion-on-the-vulnerability-of-the-uec-model)
+
 
 #### How to Run an Example of the Ulianov Elliptical Encryption Model (UEC)
 
