@@ -10,7 +10,7 @@
 - [Program Workflow](#program-workflow)
 - [Enhanced Key Protection](#enhanced-key-protection)
 - [Practical Applications](#practical-applications)
-- [Conclusion](#conclusion)
+- [Advantages of the UEC model](#advantages-of-the-uec-model)
 - [How to Run an Example of the Ulianov Elliptical Encryption Model (UEC)](#how-to-run-an-example-of-the-ulianov-elliptical-encryption-model-uec)
   - [Steps to Run the Example](#steps-to-run-the-example)
   - [Encrypting and Decrypting](#encrypting-and-decrypting)
@@ -23,6 +23,7 @@
 - [Cryptographic Keys in UEC (Ulianov Elliptical Cryptography)](#cryptographic-keys-in-uec-ulianov-elliptical-cryptography)
   - [🟦 Public Keys (Kpub)](#-public-keys-kpub)
   - [🟩 Private Keys (Kpriv)](#-private-keys-kpriv)
+- [Advantages of Private-Key Encryption with Public-Key Decryption](#-advantages-of-private-key-encryption with-public-Key-decryption)
 - [Proposed Certification Scheme](#proposed-certification-scheme)
   - [1. Keeping Private Keys (KPriv) Secret](#1-keeping-private-keys-kpriv-secret)
   - [2. Ensuring Secure Association Between User IDs and Public Keys (KPub)](#2-ensuring-secure-association-between-user-ids-and-public-keys-kpub)
@@ -78,28 +79,7 @@ By contrast, in RSA, the signed message remains visible, and the public key is u
 
 ---
 
-#### Ulianov Elliptical Encryption Model
-
-The **Ulianov Elliptical Encryption Model** is an advanced asymmetric encryption framework leveraging high-precision arithmetic (via the `mpmath` library) and Pi-based calculations to enhance complexity and cryptographic security. This model uniquely uses real-number arithmetic rather than traditional integer-based cryptographic methods.
-
-#### Asymmetric Encryption Models
-An evolution of the UEC model in relation to the RSA model is that it fully supports the two possibilities that exist in asymmetric cryptography:
-
-##### Model 1: Public-Key Encryption, Private-Key Decryption
-
-- **Purpose**: Secure data storage. Anyone can encrypt data using the public key, but only the owner of the private key can decrypt and read the data.
-- **Typical Use Case**: Confidential data exchange where the recipient is the sole entity authorized to access the information.
-Note: The RSA model only performs this type of encryption.
-
-
-##### Model 2: Private-Key Encryption, Public-Key Decryption
-
-- **Purpose**: Digital signature. Only the holder of the private key can encrypt (sign) the data, ensuring authenticity when verified with the public key.
-- **Typical Use Case**: Digital signing of documents to guarantee authenticity and non-repudiation.
-Note: The RSA model does not perform this type of encryption, requiring some tricks to generate digital signatures. The UEC model opens up the possibility of keeping data encrypted with a private key hidden and can generate a signature scheme with a public key of limited use or that will remain hidden for a certain period of time. This would be very useful, for example, in the case of a will where the person signs the document with a new private key, while the public key is hidden (for example, with a law firm) to be revealed only after the person's death (along with the appropriate certificate that proves that it is a valid public key). This way, all heirs can receive a copy of the will but will only be able to open it when the public key is known. This also allows the leader of a group or organization to distribute public keys only to people within the group. The generated messages can be generated on a page with free access, but only those who have this "public key" with limited access will be able to read the content of the message encrypted with a private key.
-Note that in the RSA case the message is open and the public key is needed only to confirm the signature but does not hide the content that was signed.
-
-#### Program Workflow
+#### UEC model Workflow
 
 - **Select Cryptographic ID (Security Level)**: Choose a security tier (POP, VIP, PRIME, etc.), defining key length and security strength (e.g., POP uses 2500 digits ≈ 10,000 bits).
 - **Generate Cryptographic Parameters**: Configures internal system parameters (`CriptoParams`), such as header positions and data lengths, according to the selected security level.
@@ -118,7 +98,7 @@ Private keys receive additional protection through:
 - **Secure Digital Signatures**: Private-key signing, public-key verification.
 - **Digital Certificate and Cryptographic ID Generation**: Secure and verifiable IDs and certificates resistant to forgery.
 
-#### Conclusion
+#### Advantages of the UEC model
 
 The Ulianov Elliptical asymmetric encryption model provides exceptional security leveraging advanced mathematical techniques and unconventional approaches (high-precision real arithmetic and Pi-based key derivation), making it uniquely robust for digital security contexts. 
 As detailed at the end of this document, the UEC model cannot be broken by quantum computers and according to the analysis of artificial intelligence Chat GPT4, it is a system that is impossible to decode without having the private keys and these cannot be calculated from the public keys.
@@ -341,6 +321,54 @@ In the proposed system, public keys (K1_pub and K4_pub) will be publicly availab
 - **Other IDs**: Higher-priced certificates, with specific costs yet to be defined.
 
 This structured approach ensures both security and accessibility, balancing rigorous cryptographic protection with practical use-case affordability.
+
+---
+
+### Advantages of Private-Key Encryption with Public-Key Decryption
+
+One of the most significant innovations of the **Ulianov Elliptical Cryptography (UEC)** model is its full support for **private-key encryption** and **public-key decryption**, a mode not natively supported by traditional RSA-based cryptography.
+
+####  RSA Limitation
+
+In the RSA model:
+
+* **Encryption is done with the public key**, and only the **private key** can decrypt.
+* To simulate a digital signature, RSA encrypts a hash of the message with the **private key**.
+* However, **the message remains unencrypted** — only its signature is validated.
+* RSA does **not** support encrypting the message itself with the private key and keeping the public key restricted.
+
+This means:
+
+* **The content is always exposed**.
+* **Anyone** with the public key can verify the signature — but cannot be restricted from accessing the signed message.
+* RSA signatures **prove origin**, but they **do not control visibility** of the message.
+
+####  UEC Enhancement
+
+The UEC model extends this concept:
+
+* Allows the **entire message to be encrypted with the private key**.
+* The message remains **fully encrypted** and can only be decrypted using the corresponding **public key**.
+* The **public key can be distributed selectively** or **revealed later**, enabling conditional access.
+
+####  Practical Advantages
+
+This structure enables powerful and flexible use cases:
+
+* **Time-locked access**: A will can be encrypted by the testator using their private key. The public key is only released upon their death, allowing anyone to validate and decrypt the message — but only when authorized.
+* **Group-restricted messages**: A message can be published openly, but only members of a group who hold the associated public key can decrypt it.
+* **Controlled disclosure**: Public keys may be escrowed or stored securely, then released based on legal, contractual, or time-based conditions.
+
+#### Why This Matters
+
+This approach solves a fundamental gap in RSA and similar systems:
+
+* In UEC, **a message can be both authenticated and kept confidential**, even when encrypted with the private key.
+* In RSA, the message is **always visible** — you can verify who signed it, but you cannot restrict who sees it.
+
+UEC introduces **true asymmetric flexibility**: both encryption directions are valid and secure, with **real-number non-invertible functions** ensuring irreversibility without key knowledge — even under quantum threats.
+
+---
 
 #### Proposed Certification Scheme
 
