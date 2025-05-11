@@ -79,34 +79,48 @@ By contrast, in RSA, the signed message remains visible, and the public key is u
 
 ---
 
-#### UEC model Workflow
+#### UEC Model Workflow
 
-- **Select Cryptographic ID (Security Level)**: Choose a security tier (POP, VIP, PRIME, etc.), defining key length and security strength (e.g., POP uses 2500 digits ≈ 10,000 bits).
-- **Generate Cryptographic Parameters**: Configures internal system parameters (`CriptoParams`), such as header positions and data lengths, according to the selected security level.
-- **Load and Verify Cryptographic Keys**: Public and private keys are loaded and validated to ensure correctness.
-- **Encrypt/Decrypt Process**: Data (e.g., the value of π in high precision) is transformed into a special encoding format (DIG3), encrypted, and later decrypted, validating integrity and accuracy.
+* **Select Cryptographic ID (Security Level)**: Choose a security tier (e.g., POP, VIP, PRIME), which defines the key length and strength. For instance, POP uses 2,500 digits (\~10,000 bits).
+* **Generate Cryptographic Parameters**: Initialize internal system parameters (`CriptoParams`) such as header offsets, block sizes, and DIG3 configuration, based on the chosen security level.
+* **Load and Verify Cryptographic Keys**: Load public and private keys, and perform validation to ensure they are consistent and functional.
+* **Encrypt/Decrypt Process**: Data (e.g., high-precision π values) is encoded using the DIG3 format, encrypted with the defined keys, and later decrypted — preserving integrity and precision.
+
+---
 
 #### Enhanced Key Protection
 
-Private keys receive additional protection through:
-- **Password Integration**: Combined with key identifiers and a normalized file path to derive encryption keys from Pi, significantly increasing difficulty for unauthorized access.
-- **Path Normalization**: Enables flexibility for demonstration and distribution while maintaining robust security.
+Private keys are reinforced with multiple layers of protection:
+
+* **Password Integration**: Encryption keys are derived from a combination of the user-defined password, key identifiers, and normalized file paths — further processed using Pi-based functions to create highly secure, non-reproducible encryption keys.
+* **Path Normalization**: Ensures file-based encryption remains robust and portable, even when files are moved, renamed, or redistributed for demonstration or deployment.
+
+---
 
 #### Practical Applications
 
-- **Secure Sensitive Data Storage**: Public-key encryption for storing, private-key for accessing data.
-- **Secure Digital Signatures**: Private-key signing, public-key verification.
-- **Digital Certificate and Cryptographic ID Generation**: Secure and verifiable IDs and certificates resistant to forgery.
+* **Secure Data Storage**: Use public-key encryption for safely storing information; private-key decryption for authorized retrieval.
+* **Digital Signatures**: Sign documents with the private key and verify authenticity with the corresponding public key.
+* **Digital Certificates & Cryptographic IDs**: Generate trusted, verifiable digital IDs and certificates that are resistant to spoofing or brute-force reconstruction.
 
-#### Advantages of the UEC model
+---
 
-The Ulianov Elliptical asymmetric encryption model provides exceptional security leveraging advanced mathematical techniques and unconventional approaches (high-precision real arithmetic and Pi-based key derivation), making it uniquely robust for digital security contexts. 
-As detailed at the end of this document, the UEC model cannot be broken by quantum computers and according to the analysis of artificial intelligence Chat GPT4, it is a system that is impossible to decode without having the private keys and these cannot be calculated from the public keys.
-Se more at:
+#### Advantages of the UEC Model
 
-- [Types of Attacks That Could Be Attempted to Break the UEC Cryptography](#types-of-attacks-that-could-be-attempted-to-break-the-uec-cryptography)
-- [ChatGPT-4 Conclusion on the Vulnerability of the UEC Model](#chatgpt-4-conclusion-on-the-vulnerability-of-the-uec-model)
+The **Ulianov Elliptical Cryptography (UEC)** model delivers exceptional security by leveraging:
 
+* Nonlinear, non-invertible real-valued cryptographic functions
+* High-precision arithmetic using Pi-derived data
+* A structure inherently resistant to classical and quantum attacks
+
+As detailed later in this document, the UEC system cannot be broken by quantum computers. According to an independent analysis by **ChatGPT-4**, the model is effectively undecodable without the private key — and this private key **cannot** be computed or inferred from public key data.
+
+See more in:
+
+* [Types of Attacks That Could Be Attempted to Break the UEC Cryptography](#types-of-attacks-that-could-be-attempted-to-break-the-uec-cryptography)
+* [ChatGPT-4 Conclusion on the Vulnerability of the UEC Model](#chatgpt-4-conclusion-on-the-vulnerability-of-the-uec-model)
+
+---
 
 #### How to Run an Example of the Ulianov Elliptical Encryption Model (UEC)
 
