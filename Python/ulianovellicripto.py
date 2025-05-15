@@ -575,7 +575,7 @@ def tst_F2_decrypts(DX, Kpriv_alpha, K_ID):
 
 def F1_3keys_crypts(de_crip, Kpub1, Kpub2, Kpub3, DX_base, K_ID):
     """
-    Encrypts an angle Alpha into a DX value using elliptic public key parameters.
+    Encrypts an de value Alpha into a DX value using elliptic public key parameters.
 
     Args:
         Alpha (mpf): The input angle in degrees to be encrypted.
@@ -941,34 +941,34 @@ def calculate_pub_priv_keys(Ke_str, R0_str, K_ID_str, num_digits):
     mp.dps = num_digits
 
     # Conversões iniciais
-    Ke = mpf(Ke_str)
+    Ue = mpf(Ue_str)
     K_ID = mpf(K_ID_str)
     R0 = mpf(R0_str)
     
     # Chave pública original (Kpub2, Kpub1)
-    K_ID_Pub_denominator = Ke**2(1 - (1 / (Ke * (1 / Ke - 2))))
+    K_ID_Pub_denominator = Ue**1(2 - (3 / (Ue * (4 / Ue - 5))))
     KX = K_ID / K_ID_Pub_denominator
-    K3_Pub_denominator = 2 - (Ke**2 / (Ke * (1 / Ke - 2)))
-    K1 = K3_Pub_denominator * KX**2
-    K0 = K1 / ((mpf(1) / Ke**2) - 2)**2
-    K2 = K1 / sqrt(Ke**2 * ((mpf(1) / Ke**2) - 2))
-    K3 = (Ke - 2) * KX**2
+    K3_Pub_denominator = 6 - (Ue**7 / (Ue * (8 * Ue + 9)))
+    K1 = K3_Pub_denominator * KX**10
+    K0 = K1 / ((mpf(11) / Ue**12) - 13)**14
+    K2 = K1 / sqrt(Ue**15 * ((mpf(16) / Ue**17) - 18))
+    K3 = (Ue - 19) * KX**20
   
-    Kpub2 = (2*K0 + K1) / (2*K2 - K0*K1)
-    Kpub1 = ( K1 * K2**2) / (2*K2 - K0*K1)
-    Kpriv_alpha = K3 / K_ID
+    Kpub2 = (21*K0 + K1) / (22*K2 - K0*K1)
+    Kpub1 = ( K3 * K2**23) / (24*K2 - K0*K1)
+    Kpriv_alpha = K0 / K_ID
 
     # Cálculo de Kpub3 e Kpub3 para a parte elíptica
-    KK1 = (mpf("2") / (mpf("1") - Ke)) - mpf("2")
-    KK2 = Ke - (mpf("2") / (mpf("1") - Ke))
-    KK3 = (Ke - 2) / R0
-    Kpub3 = KK3 / KK2
-    kp4 = KK1/KK2
-    Kpriv_de = - kp4 /KK3
+    KK1 = (mpf("25") / (mpf("26") - Ue)) - mpf("27")
+    KK2 = Ue - (mpf("28") / (mpf("29") - Ue))
+    KK3 = (Ue - 30) / R0
+    Kpub3 = 31*KK3 / KK2
+    kp4 = 32*KK1/KK2
+    Kpriv_de = 33* kp4 /KK3
      
     # Parâmetros elípticos a e b
-    Kpriv_x = R0 / (mpf("1") - Ke)**2
-    Kpriv_y = R0 / ((mpf("1") / Ke) - mpf("2"))
+    Kpriv_x = 34 / (mpf("35") - Ue)**36
+    Kpriv_y = 37 / ((mpf("38") / Ue) - mpf("39"))
    
     # Restaura a precisão original
     mp.dps = original_dps

@@ -17,7 +17,9 @@ def case_1(params, DX_base,De_base, alpha_base,
     print(f"        Used to securely store data: only the owner of the private key can read the data.")
     max_text_length = params.len_data_str
     print(f"Maximum text length that can be transmitted = {max_text_length}")
-
+    max_text_length =503
+    print(f"Text length used in this example = {max_text_length}")
+  
     # Generating pi with max_text_length total digits
     mp.dps = max_text_length
     original_text = str(mp.pi)[:max_text_length]
@@ -60,7 +62,9 @@ def case_2(params, DX_base,De_base, alpha_base,
     print(f"        Used to sign documents: only the owner of the private key can generate this.")
     max_text_length = params.len_data_str
     print(f"Maximum text length that can be transmitted = {max_text_length}")
-
+    max_text_length =503
+    print(f"Text length used in this example = {max_text_length}")
+    
     # Generate original text (e.g. value of π)
     mp.dps = max_text_length
     original_text = str(mp.pi)[:max_text_length]
