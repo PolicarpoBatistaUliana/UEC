@@ -172,7 +172,7 @@ if not ok_priv:
 
 # Ask if the user wants to display a summary of the loaded keys
 opstr = input("Show summary of Public and Private Keys? (y/n): ")
-if 1 and opstr.lower() == "y":
+if 0 and opstr.lower() == "y":
     print(f"DX_base     = {str(DX_base)}")
     print(f"De_base     = {str(De_base)}")
     print(f"K_ID        = {str(K_ID)[:60]}")
@@ -184,7 +184,7 @@ if 1 and opstr.lower() == "y":
     print(f"Kpriv(x)    = {str(Kpriv_x)[:60]}")
     print(f"Kpriv(y)    = {str(Kpriv_y)[:60]}")
 
-if 0 and opstr.lower() == "y":
+if 1 and opstr.lower() == "y":
     print(f"DX_base     = {str(DX_base)}")
     print(f"De_base     = {str(De_base)}")
     print(f"K_ID        = {str(K_ID)}")
