@@ -1,14 +1,11 @@
-from mpmath import mp, mpf
 from ulianovramdompi import get_long_pi
-import os
-from datetime import datetime
 from ulianovellicripto import (
     CriptoParams, get_public_keys,get_private_keys,
     get_long_pi, calculate_CRC_ID,get_num_digits,
-    decriptografar_arq_key_priv,criptografar_arq_key_pub
+    criptografar_msg_key_pub,decriptografar_msg_key_priv
 )
 
-print("Test file Dencryption with private in UEC Model")
+print("Test file Encryption with publick key in UEC Model")
 print("This practical example works only with text files with up to 2000 characters for user with TOP+ ID and 503 characters for POP ID.")
 
 # Load the long π value used for ID generation and cryptographic parameters
@@ -46,25 +43,25 @@ if not ok_priv:
 print(f"Private key and Pulick key loaded and tested OK")
 User_name="Policarpo Yoshin Ulianov"
 
-#file_name="teste1.txt"
-#ok,msg = criptografar_arq_key_pub(file_name,ID,User_name,ID,User_name,DX_base,De_base,K1_pub,K2_pub,K3_pub,K_ID,params)
+params = CriptoParams(2500)
 
+text="test transmission of a short message encrypted with the user's own public key and must be decrypted with a private key"
+ok,text_crip = criptografar_msg_key_pub(text,ID,User_name,ID,User_name,
+    DX_base,De_base,K1_pub,K2_pub,K3_pub,K_ID,params)
 
-file_name=".\\TEXT\\teste1_txt.uec"
-ok,msg= decriptografar_arq_key_priv(file_name, ID, User_name,
+if not ok:
+   print(f"ERROR: {text_crip}") 
+else:
+   print(f"Msg crip = {text_crip[:300]}") 
+   params = CriptoParams(num_digits)
+   ok,text_rec= decriptografar_msg_key_priv(text_crip, ID, User_name,
                                 Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de,
                                 DX_base, alpha_base_str, K_ID, params)
 if ok:
-   print(f"OK: {msg}")  
+   if text_rec ==text:
+      print(f"Text recovered correctly: ")  
+      print(text_rec)  
+      
 else:
-   print(f"ERRO: {msg}")       
+   print(f"ERROR: {text_rec}")          
 
-
-file_name=".\\TEXT\\teste2_txt.uec"
-ok,msg= decriptografar_arq_key_priv(file_name, ID, User_name,
-                                Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de,
-                                DX_base, alpha_base_str, K_ID, params)
-if ok:
-   print(f"OK: {msg}")  
-else:
-   print(f"ERRO: {msg}")          

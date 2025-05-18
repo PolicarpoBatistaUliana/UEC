@@ -2,8 +2,9 @@ from ulianovramdompi import get_long_pi
 from ulianovellicripto import (
     CriptoParams, get_public_keys,get_private_keys,
     get_long_pi, calculate_CRC_ID,get_num_digits,
-    decriptografar_arq_key_priv,criptografar_arq_key_pub
+    criptografar_arq_key_pub
 )
+import time
 
 print("Test file Encryption with publick key in UEC Model")
 print("This practical example works only with text files with up to 2000 characters for user with TOP+ ID and 503 characters for POP ID.")
@@ -42,11 +43,48 @@ if not ok_priv:
     exit()
 print(f"Private key and Pulick key loaded and tested OK")
 User_name="Policarpo Yoshin Ulianov"
-file_name="teste1.txt"
+file_name=".\\TEXT\\teste1.txt"
 ok,msg = criptografar_arq_key_pub(file_name,ID,User_name,ID,User_name,
     DX_base,De_base,K1_pub,K2_pub,K3_pub,K_ID,params)
-
 if ok:
     print(f"OK: {msg}")  
 else:
     print(f"ERRO: {msg}") 
+
+params = CriptoParams(2500)
+file_name = ".\\TEXT\\teste2.txt"
+
+start = time.time()
+
+ok, msg = criptografar_arq_key_pub(
+    file_name, ID, User_name, ID, User_name,
+    DX_base, De_base, K1_pub, K2_pub, K3_pub, K_ID, params
+)
+
+end = time.time()
+delta = end - start
+
+if ok:
+   print(f"OK: {msg}")
+   print(f"Encryption time with {params.num_digits} digits: {delta:.3f} seconds")
+else:
+   print(f"ERROR: {msg}")
+
+params = CriptoParams(7000)
+file_name = ".\\TEXT\\teste2.txt"
+
+start = time.time()
+
+ok, msg = criptografar_arq_key_pub(
+    file_name, ID, User_name, ID, User_name,
+    DX_base, De_base, K1_pub, K2_pub, K3_pub, K_ID, params
+)
+
+end = time.time()
+delta = end - start
+
+if ok:
+   print(f"OK: {msg}")
+   print(f"Encryption time with {params.num_digits} digits: {delta:.3f} seconds")
+else:
+   print(f"ERROR: {msg}")
