@@ -27,8 +27,8 @@ class CriptoParams:
             self.len_header_num = 500           # Numeric header length
             self.len_header_str_char = 500      # Character header length (number of chars)
         else:
-            self.len_header_num = 300
-            self.len_header_str_char = 180
+            self.len_header_num = 120
+            self.len_header_str_char = 240
 
         self.len_header_str_dig = 3 * self.len_header_str_char  # Each char = 3 digits in DIG3 format
         self.pos_head_num = self.separator_init + self.len_header_num +  self.separator
@@ -102,6 +102,61 @@ def clear_str(string):
         crc ^= pair
 
     return new_str, num_char, crc
+
+
+# Function to calculate the CRC of a var str
+def calc_crc_str_dig3(var_str, lencrc=10):
+    var_dig3 = convert_str_to_dig3(var_str)
+    num_digits = len(var_dig3)
+    crc_chunks = []
+
+    # Divide var_str into chunks of size lencrc
+    for i in range(0, num_digits, lencrc):
+        chunk = var_dig3[i:i + lencrc]
+        if len(chunk) < lencrc:
+            chunk += "0" * (lencrc - len(chunk))  # Pad with zeros if needed
+        crc_chunks.append(chunk)
+
+    saved_dps = mp.dps
+    mp.dps = lencrc + 30  # Set precision
+
+    total = mpf(0)
+    for chunk in crc_chunks:
+        total += mpf("0." + chunk)
+
+    crc = str(total)[10:10 + lencrc]
+
+    mp.dps = saved_dps  # Restore original precision
+    return crc
+
+
+
+# Function to calculate the CRC of a var dig3
+def calc_crc_dig3_dig3(var_dig3, lencrc=10):
+    num_digits = len(var_dig3)
+    crc_chunks = []
+
+    # Divide var_str into chunks of size lencrc
+    for i in range(0, num_digits, lencrc):
+        chunk = var_dig3[i:i + lencrc]
+        if len(chunk) < lencrc:
+            chunk += "0" * (lencrc - len(chunk))  # Pad with zeros if needed
+        crc_chunks.append(chunk)
+
+    saved_dps = mp.dps
+    mp.dps = lencrc + 30  # Set precision
+
+    total = mpf(0)
+    for chunk in crc_chunks:
+        total += mpf("0." + chunk)
+
+    crc = str(total)[10:10 + lencrc]
+
+    mp.dps = saved_dps  # Restore original precision
+    return crc
+
+
+
 
 def calculate_CRC_ID(id_type, id_number, long_pi):
     """
@@ -959,7 +1014,7 @@ def calculate_pub_priv_keys(Ue_str, R0_str, K_ID_str, num_digits):
     R0 = mpf(R0_str)
     
     # Chave pública original (Kpub2, Kpub1)
-    K_ID_Pub_denominator = Ue**1(2 - (3 / (Ue * (4 / Ue - 5))))
+    K_ID_Pub_denominator = Ue**1.0*(2 - (3 / (Ue * (4 / Ue - 5))))
     KX = K_ID / K_ID_Pub_denominator
     K3_Pub_denominator = 6 - (Ue**7 / (Ue * (8 * Ue + 9)))
     K1 = K3_Pub_denominator * KX**10
@@ -1347,3 +1402,207 @@ def calculate_all_keys(long_pi, path, pass_word1,pass_word2, time, id_without_cr
         return False, "Final error confirming the keys"
 
     return True, f"Keys for ID {complete_id} successfully generated and verified."
+
+
+def gerar_nome_uec(file_name: str) -> str:
+    base = os.path.basename(file_name)
+    if '.' in base:
+        idx = base.rfind('.')
+        out_name = base[:idx] + "_" + base[idx+1:] + ".uec"
+    else:
+        out_name = base + ".uec"
+    return out_name
+
+def normaliza(txt):
+    return txt.replace(" ", "").replace('"', "").replace("'", "")
+
+def decriptografar_arq_key_priv(file_name, User_ID, User_Name,
+                                Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de,
+                                DX_base, alpha_base, K_ID, params):
+
+    if not os.path.exists(file_name):
+        return False, f"Arquivo '{file_name}' não encontrado."
+
+    with open(file_name, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    try:
+        header_part = content.split("(", 1)[1].split("),", 1)[0]
+        param_part = content.split("),", 1)[1].split("),", 1)[0].split("(", 1)[1]
+        encrypted_data = content.split("[", 1)[1].split("]")[0].strip()
+    except Exception as e:
+        return False, f"Erro ao extrair partes do bloco: {e}"
+
+    def parse_block(block):
+        d = {}
+        for item in block.split(","):
+            if "=" in item:
+                k, v = item.strip().split("=", 1)
+                d[k.strip()] = v.strip().strip('"')
+        return d
+
+    header = parse_block(header_part)
+    param = parse_block(param_part)
+
+    if header.get("VER") != "UEC-V1.0":
+        return False, "Versão inválida"
+    if header.get("TY") != "PK-Encrypt":
+        return False, "Tipo inválido"
+    if header.get("DT") != "File":
+        return False, "Tipo de dado inválido"
+    if header.get("KUID") != User_ID or header.get("KUN") != User_Name:
+        return False, "Chave pública de destino não confere"
+
+    if param.get("ENC") != "DIG3":
+        return False, "Codificação inválida"
+    if int(param.get("NBK", 0)) != 1:
+        return False, "Apenas um bloco suportado"
+    if int(param.get("BKL_1", 0)) != len(encrypted_data):
+        return False, "Tamanho do bloco incompatível"
+    if int(param.get("NDIG", 0)) != params.num_digits:
+        return False, "Número de dígitos não confere"
+
+    crc_calc = calc_crc_str_dig3(encrypted_data, lencrc=10)
+    crc_file = param.get("BKCRC_1")
+    #print(f"CRC do bloco ={crc_calc} \nCRC cabeçalho={crc_file}")
+    if crc_calc !=crc_file:
+        return False, f"CRC do bloco{crc_calc} não confere com CRC cabeçalho {crc_file}"
+
+    mp.dps = params.num_digits
+    try:
+        _, recovered_dig3_text, recovered_header_number, recovered_header_string = decrypt_with_private_key(
+            encrypted_data,Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de,
+            DX_base, alpha_base, K_ID, params
+        )
+        recovered_text, _, _ = convert_dig3_to_str(recovered_dig3_text)
+    except Exception as e:
+        return False, f"Erro na decriptografia: {e}"
+    #print(f"recovered_text={recovered_text}") 
+    tamtxt=int(header.get("FL", -1))
+    tamrec= len(recovered_text)
+    if tamtxt !=tamrec:
+        return False, f"Tamanho do texto original({tamtxt} caracteres) não confere com tamanho recuperdo ({tamrec} caracteres)"
+    recovered_header_number=str(recovered_header_number)[:-2]
+    crc_file=  calc_crc_str_dig3(recovered_text, lencrc=100)
+    #print(f"CRC indicado ={recovered_header_number} \nCRC calculado={crc_file}")
+   
+    if recovered_header_number != crc_file:
+        return False, "CRC do conteúdo não confere"
+
+    nome_base = header.get("FN", "saida.txt")
+    nome_saida = nome_base
+    contador = 1
+    while os.path.exists(nome_saida):
+        nome_saida = f"{os.path.splitext(nome_base)[0]}({contador}){os.path.splitext(nome_base)[1]}"
+        contador += 1
+
+    with open(nome_saida, "w", encoding="utf-8") as f:
+        f.write(recovered_text)
+    #print(f"recovered_header ={recovered_header_string}")
+
+    header_txt = ", ".join(f"{k}={v}" for k, v in header.items())
+  
+    #print(f"header_part      ={header_txt}")
+
+    max_chars=params.len_header_str_char
+    original = normaliza(header_txt)[:max_chars]
+    recuperado = normaliza(recovered_header_string)[:max_chars]
+
+    if original != recuperado:
+        return False, "Cabeçalho descriptografado não confere com o original: pode ter sido adulterado."
+   
+    return True, f"Arquivo {nome_saida} decriptografado corretamente."
+
+def dict_to_str(d):
+        return ",\n ".join(f'{k} = "{v}"' for k, v in d.items())
+
+def criptografar_arq_key_pub(file_name, maker_ID, maker_name, user_ID, user_Name,
+                             DX_base, De_base, Kpub1, Kpub2, Kpub3,
+                             K_ID, params):
+     # Verifica se o arquivo existe
+    if not os.path.exists(file_name):
+        msg=f"Arquivo '{file_name}' não encontrado."
+        return False,msg
+
+    # Lê o conteúdo
+    with open(file_name, "r", encoding="utf-8") as f:
+        content = f.read().strip()
+
+    file_len = len(content)
+    #print(f"file_len={file_len},content={content}")
+    
+    # Converte para formato dig3
+    encoded = convert_str_to_dig3(content)
+    #print(f"encoded={encoded}")
+
+    crc_dig3 = calc_crc_str_dig3(content, lencrc=100)
+
+    # Decide se é um bloco único
+    if file_len > params.len_data_str:
+        msg = "Arquivo muito grande para criptografia em um único bloco."
+        return False,msg
+ 
+    # Cabeçalhos
+    head_num = crc_dig3
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    if user_ID!=maker_ID:
+        header_str = {
+        "VER": "UEC-V1.0",
+        "TY": "PK-Encrypt",
+        "DT": "File",
+        "FN": os.path.basename(file_name),
+        "FL": str(file_len),
+        "FT": now,
+        "FCRC": f"head_num{len(crc_dig3)}",
+        "KUID": user_ID,
+        "KUN": user_Name,
+        "MKID": maker_ID,
+        "MKUN": maker_name,
+        }
+    else:
+        header_str = {
+        "VER": "UEC-V1.0",
+        "TY": "PK-Encrypt",
+        "DT": "File",
+        "FN": os.path.basename(file_name),
+        "FL": str(file_len),
+        "FT": now,
+        "FCRC": f"head_num{len(crc_dig3)}",
+        "KUID": user_ID,
+        "KUN": user_Name,
+      }
+    header_txt = ", ".join(f"{k}={v}" for k, v in header_str.items())
+    num_digits =params.num_digits
+    # Ajusta precisão
+    mp.dps = num_digits
+    # Criptografa
+    encrypted = encrypt_with_public_key(encoded, head_num, header_txt,
+                                        DX_base, De_base, Kpub1, Kpub2, Kpub3, K_ID, params)
+
+    
+    crc_dig3 = calc_crc_str_dig3(encrypted, lencrc=10)
+
+    param = {
+        "ENC": "DIG3",
+        "NDIG": str(num_digits),
+        "NBK": "1",
+        "BKL_1": str(len(encrypted)),
+        "BKCRC_1": crc_dig3,
+    }
+
+
+    bloco = f"""{{
+({dict_to_str(header_str)}),
+({dict_to_str(param)}),
+[{encrypted}]
+}}"""
+
+    # Gera nome do arquivo de saída
+    out_name = gerar_nome_uec(file_name)
+    #print(f"={out_name}")
+    with open(out_name, "w", encoding="utf-8") as f:
+        f.write(bloco)
+
+    msg=f"Arquivo {file_name}({file_len} caracteres ) criptografado salvo como:{out_name}"
+    return True,msg
+
