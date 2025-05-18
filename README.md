@@ -29,6 +29,7 @@
   - [2. Ensuring Secure Association Between User IDs and Public Keys (KPub)](#2-ensuring-secure-association-between-user-ids-and-public-keys-kpub)
 - [Certification Hierarchy](#certification-hierarchy)
 - [Implementation and Practical Considerations](#implementation-and-practical-considerations)
+- [Encryption of text files with public key](#Encryption-of-text-files-with-public-key)
 - [Key Generation](#key-generation)
 - [Why Real-Number-Based Cryptography Was Not Invented Until Now?](#why-real-number-based-cryptography-was-not-invented-until-now)
 - [ChatGPT-4 Analysis](#-Analysis-of-the-UEC-Model-by-ChatGPT-4)
@@ -104,6 +105,37 @@ Private keys are reinforced with multiple layers of protection:
 * **Digital Certificates & Cryptographic IDs**: Generate trusted, verifiable digital IDs and certificates that are resistant to spoofing or brute-force reconstruction.
 
 ---
+
+###Encryption of text files with public key
+
+
+The programs:
+1- cripfilespublickeys.py => encrypts a text file of up to 2000 characters in a single block;
+2- decripfilesprivkeys.py => decrypts a text file of up to 2000 characters in a single block.
+
+This scheme present a first practical example (still limited to just one encryption block, which will be expanded in the coming days) of how to use the UEC model to encrypt a text file.
+
+In this simple example, the program cripfilespublickeys.py reads the file test1.txt and generates the file test1_txt.uec with data encrypted using the user's (User ID = TOP+333-333) public key and generates a public header with the following format:
+
+file test1_txt.uec:
+{
+(VER = "UEC-V1.0",
+ TY = "PK-Encrypt",
+ DT = "File",
+ FN = "teste1.txt",
+ FL = "1358",
+ FT = "2025-05-18 01:01:24",
+ FCRC = "head_num93",
+ KUID = "TOP+ 333-333",
+ KUN = "Policarpo Yoshin Ulianov"),
+(ENC = "DIG3",
+ NDIG = "7000",
+ NBK = "1",
+ BKL_1 = "7002",
+ BKCRC_1 = "3653999999"),
+[-1.23194389349142...(7000 digtis)...899]}
+
+The program decripfilesprivkeys.py read file test1_txt.uec and recover the file teste1(1).txt tha is the same text of original the file teste1.txt
 
 #### Advantages of the UEC Model
 
