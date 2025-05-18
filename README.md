@@ -109,8 +109,9 @@ Private keys are reinforced with multiple layers of protection:
 ### Encryption of text files with public key
 
 Thes case is presented using the following programs:
-1- cripfilespublickeys.py => encrypts a text file of up to 2000 characters in a single block;
-2- decripfilesprivkeys.py => decrypts a text file of up to 2000 characters in a single block.
+
+* Program: cripfilespublickeys.py => encrypts a text file of up to 2000 characters in a single block;
+* Program: decripfilesprivkeys.py => decrypts a text file of up to 2000 characters in a single block.
 
 This scheme present a first practical example (still limited to just one encryption block, which will be expanded in the coming days) of how to use the UEC model to encrypt a text file.
 
