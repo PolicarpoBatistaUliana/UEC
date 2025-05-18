@@ -115,9 +115,9 @@ Thes case is presented using the following programs:
 
 This scheme present a first practical example (still limited to just one encryption block, which will be expanded in the coming days) of how to use the UEC model to encrypt a text file.
 
-In this simple example, the program cripfilespublickeys.py reads the file test1.txt and generates the file test1_txt.uec with data encrypted using the user's (User ID = TOP+333-333) public key and generates a public header with the following format:
+In this simple example, the program cripfilespublickeys.py reads the file "test1.txt" and generates the file "test1_txt.uec", with data encrypted using the user's (User ID = TOP+333-333) public key and generates a public header with the following format:
 
-file test1_txt.uec:
+file "test1_txt.uec":
 {
 (VER = "UEC-V1.0",
  TY = "PK-Encrypt",
@@ -135,7 +135,9 @@ file test1_txt.uec:
  BKCRC_1 = "3653999999"),
 [-1.23194389349142...(7000 digtis)...899]}
 
-The program decripfilesprivkeys.py read file test1_txt.uec and recover the file teste1(1).txt tha is the same text of original the file teste1.txt
+
+
+The program decripfilesprivkeys.py read file "test1_txt.uec" and recover the file "teste1(1).txt" that is the same text of original the file "teste1.txt"
 
 #### Advantages of the UEC Model
 
