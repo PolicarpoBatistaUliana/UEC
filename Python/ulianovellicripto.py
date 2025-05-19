@@ -1607,10 +1607,11 @@ def criptografar_msg_key_pub(content, maker_ID, maker_name, user_ID, user_Name,
     return True,bloco
 
 
-def criptografar_arq_key_pub(file_name, maker_ID, maker_name, user_ID, user_Name,
+def crypt_file_key_pub(file_name, maker_ID, maker_name, user_ID, user_Name,
                              DX_base, De_base, Kpub1, Kpub2, Kpub3, K_ID, params):
+    out_name=""
     if not os.path.exists(file_name):
-        return False, f"Arquivo '{file_name}' não encontrado."
+        return False, f"Arquivo '{file_name}' não encontrado.",out_name
 
     with open(file_name, "r", encoding="utf-8") as f:
         content = f.read().strip()
@@ -1672,10 +1673,10 @@ def criptografar_arq_key_pub(file_name, maker_ID, maker_name, user_ID, user_Name
         f.write(bloco_uec)
 
     msg = f"Arquivo {file_name} ({file_len} caracteres) criptografado em {num_blocks} bloco(s) e salvo como: {out_name}"
-    return True, msg
+    return True, msg,out_name
 
 
-def decriptografar_arq_key_priv(file_name, User_ID, User_Name,
+def decryp_file_key_priv(file_name, User_ID, User_Name,
                                 Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de,
                                 DX_base, alpha_base, K_ID, params):
 
@@ -1760,8 +1761,10 @@ def decriptografar_arq_key_priv(file_name, User_ID, User_Name,
             return False, f"Erro ao processar bloco {i+1}: {e}"
 
     # Validações finais
-    if int(header.get("FL", -1)) != len(texto_recuperado_total):
-        return False, "Tamanho do texto não confere"
+    tam1=int(header.get("FL", -1))
+    tam2= len(texto_recuperado_total) 
+    if tam1 != tam2:
+        return False, f"Tamanho do texto recuperado{tam2} não confere com tamanho orogimal {tam1}"
  
     crc_file=  calc_crc_str_dig3(texto_recuperado_total, lencrc=100)
    # print(f"CRC indicado ={recovered_header_number} \nCRC calculado={crc_file}")
@@ -1774,14 +1777,9 @@ def decriptografar_arq_key_priv(file_name, User_ID, User_Name,
     if normaliza(header_txt)[:max_chars] != normaliza(recovered_header_str)[:max_chars]:
         return False, "Cabeçalho descriptografado não confere com o original: pode ter sido adulterado."
 
-    # Grava arquivo
-    nome_base = header.get("FN", "saida.txt")
-    nome_saida = nome_base
-    contador = 1
-    while os.path.exists(nome_saida):
-        nome_saida = f"{os.path.splitext(nome_base)[0]}({contador}){os.path.splitext(nome_base)[1]}"
-        contador += 1
-
+    # Output name with fixed suffix
+    nome_saida = recupera_nome_uec_bin(file_name)
+ 
     with open(nome_saida, "w", encoding="utf-8") as f:
         f.write(texto_recuperado_total)
 

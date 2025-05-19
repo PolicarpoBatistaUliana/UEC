@@ -1,18 +1,17 @@
 from ulianovramdompi import get_long_pi,get_one_time_kpi
 from ulianovellicripto import (
-    CriptoParams, get_public_keys,get_private_keys,test_keys,
-    get_long_pi, calculate_CRC_ID,get_num_digits,cripto_kpi,decripto_kpi
+    CriptoParams, get_public_keys,get_private_keys,
+    get_long_pi, calculate_CRC_ID,get_num_digits,test_keys,
+    decriptografar_ubin_file_key_priv
 )
 import time
 from datetime import datetime
+import sys
+
    
-print("Test program to Encrypt and decrypt images with a one time pi key, in UEC Model")
-print("IT only with JPG images in the folther IMG.")
-print("IT generate crypt binary files with .ubin extention")
-print("OBS: This program It has no final practical application")
-print("and is only used to test the routines that encrypt and decrypt")
-print("large binary files and generate the .ubin extension for data")
-print("encrypted with a pi key.")
+print("Test file Decrypt files with private key in UEC Model")
+print("IT works with some large images (5Mbytes size) examples stored in the folder IMG.")
+
 # Load the long π value used for ID generation and cryptographic parameters
 long_pi, piok = get_long_pi(".//KEYS//", 1000000, generate=False)
 if not piok:
@@ -59,35 +58,16 @@ else:
     print("Keys successfully loaded and verified\n")
 User_name="Policarpo Yoshin Ulianov"
 
-
-time_str ="18/05/2025 10:30:10.123"
-KPI01=get_one_time_kpi(time_str, Kpriv_alpha,long_pi,180)
-print(f"time_str ={time_str}\nlen(KPI01)={len(KPI01)} KPI01={KPI01}")
-
-file_name=".\\IMG\\teste3.jpg"
+file_name=".\\IMG\\teste2_jpg.uec"
 start = time.time()
-ok,msg, output_name, crc_orig, crc_cryp=cripto_kpi(file_name, long_pi, KPI01)
-
+ok,msg=decriptografar_ubin_file_key_priv(file_name, long_pi,ID, User_name,
+                                Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de,
+                                DX_base, alpha_base_str, K_ID, params)
 end = time.time()
 delta = end - start
 
 if ok:
    print(f"OK: {msg}")
-   print(f"output_name ={output_name},crc_orig={crc_orig},crc_cryp={crc_cryp},")
-   
-   print(f"Encryption time with {params.num_digits} digits: {delta:.3f} seconds")
-else:
-   print(f"ERROR: {msg}")
-
-file_name=".\\IMG\\teste3_jpg.ubin"
-start = time.time()
-ok,msg,output_name=decripto_kpi(file_name, long_pi, KPI01,crc_orig, crc_cryp)
-
-end = time.time()
-delta = end - start
-
-if ok:
-   print(f"file {output_name} ,OK: {msg}")
-   print(f"Encryption time with {params.num_digits} digits: {delta:.3f} seconds")
+   print(f"Decryption time with {params.num_digits} digits: {delta:.3f} seconds")
 else:
    print(f"ERROR: {msg}")
