@@ -134,7 +134,6 @@ def save_private_keys(pass_word, long_pi,
     str_combined = pass_word + name_K1 + name_K2 + name_K3 + name_K4 + name_DX + normalized_path
     original_dps = mp.dps
     mp.dps = num_digits
-    sys.set_int_max_str_digits(num_digits * 2)
 
     N1 = mpf(num_pi_str(str_combined, long_pi, num_digits, 0))
     K1_str_enc = limit_k(str(mpf(K1_str) * N1), num_digits + 10)
@@ -173,7 +172,7 @@ def load_private_keys(pass_word, long_pi,name_K1, name_K2, name_K3,
 
     original_dps = mp.dps
     mp.dps = num_digits
-    sys.set_int_max_str_digits(num_digits * 2)
+
 
     # Load encrypted strings
     K1_str, K2_str, K3_str, K4_str, DX_str,DE_str,read_ok = load_public_keys(
@@ -461,3 +460,51 @@ def num_pi_dig(key_pi_dig, LongPi, num_digits, blk):
     result = mpf("0." + str_pi_dig(key_pi_dig, LongPi, num_digits, blk))
     mp.dps = udps
     return result
+
+def get_one_time_kpi(time_str: str, kpriv: str, long_pi: str, num_dig_key: int):
+    """
+    Generates a unique one-time key (KPI - Key Per Instance) using:
+    - A time-based string (time_str)
+    - A private base key (kpriv), which is a long secret numeric string
+    - A long π (pi) string (long_pi), typically containing millions of digits
+
+    This method ensures that the generated KPI is deterministic and reproducible
+    only by someone who has access to the full kpriv.
+
+    Parameters:
+    ----------
+    time_str : str
+        A unique time-related string (e.g., timestamp or session ID)
+
+    kpriv : str
+        A long, secret base key from which the KPI will be derived
+        (typically 2500 to 7000 digits or more)
+
+    long_pi : str
+        A very long string containing digits of pi, used as cryptographic entropy
+
+    num_dig_key : int
+        The number of digits for the final one-time KPI key
+
+    Returns:
+    -------
+    kpi : str
+        A numeric string of length `num_dig_key` representing the one-time use key
+    """
+
+    # Step 1: Generate a deterministic offset index using time_str and pi
+   
+    k1str = num_pi_str(time_str, long_pi, 100, 0)
+    #print(f"k1str={k1str}")
+    k1 =5+int(k1str[3:13]) % (len(kpriv) - 110)  # Ensure safe indexing
+    #print(f"k1={k1}")
+    
+    # Step 2: Extract a seed slice from the private key
+    k2str = kpriv[k1 : k1 + 100]
+    #print(f"k2str={k2str}")
+    
+    # Step 3: Generate the final KPI using this seed and pi digits
+    kpi = num_pi_str(k2str, long_pi, num_dig_key+100, 0)
+    kpi = kpi[5:num_dig_key+5]
+    return kpi
+

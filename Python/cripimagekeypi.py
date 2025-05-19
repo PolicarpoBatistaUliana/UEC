@@ -1,11 +1,14 @@
 from ulianovramdompi import get_long_pi,get_one_time_kpi
 from ulianovellicripto import (
     CriptoParams, get_public_keys,get_private_keys,
-    get_long_pi, calculate_CRC_ID,get_num_digits,
+    get_long_pi, calculate_CRC_ID,get_num_digits,cripto_kpi,decripto_kpi,
     criptografar_arq_key_pub
 )
 import time
+from datetime import datetime
+import sys
 
+   
 print("Test file Encryption with publick key in UEC Model")
 print("This practical example works only with text files with up to 2000 characters for user with TOP+ ID and 503 characters for POP ID.")
 
@@ -43,49 +46,36 @@ if not ok_priv:
     exit()
 print(f"Private key and Pulick key loaded and tested OK")
 User_name="Policarpo Yoshin Ulianov"
-file_name=".\\TEXT\\teste1.txt"
-ok,msg = criptografar_arq_key_pub(file_name,ID,User_name,ID,User_name,
-    DX_base,De_base,K1_pub,K2_pub,K3_pub,K_ID,params)
-if ok:
-    print(f"OK: {msg}")  
-else:
-    print(f"ERRO: {msg}") 
 
-params = CriptoParams(2500)
-file_name = ".\\TEXT\\teste2.txt"
 
+time_str ="18/05/2025 10:30:10.1234"
+KPI01=get_one_time_kpi(time_str, Kpriv_alpha,long_pi,180)
+print(f"time_str ={time_str}\nlen(KPI01)={len(KPI01)} KPI01={KPI01}")
+
+file_name=".\\IMG\\teste3.jpg"
 start = time.time()
-
-ok, msg = criptografar_arq_key_pub(
-    file_name, ID, User_name, ID, User_name,
-    DX_base, De_base, K1_pub, K2_pub, K3_pub, K_ID, params
-)
+ok,msg, output_name, crc_orig, crc_cryp=cripto_kpi(file_name, long_pi, KPI01)
 
 end = time.time()
 delta = end - start
 
 if ok:
    print(f"OK: {msg}")
+   print(f"output_name ={output_name},crc_orig={crc_orig},crc_cryp={crc_cryp},")
+   
    print(f"Encryption time with {params.num_digits} digits: {delta:.3f} seconds")
 else:
    print(f"ERROR: {msg}")
 
-params = CriptoParams(7000)
-file_name = ".\\TEXT\\teste2.txt"
-
+file_name=".\\IMG\\teste3_jpg.ubin"
 start = time.time()
-
-ok, msg = criptografar_arq_key_pub(
-    file_name, ID, User_name, ID, User_name,
-    DX_base, De_base, K1_pub, K2_pub, K3_pub, K_ID, params
-)
+ok,msg,output_name=decripto_kpi(file_name, long_pi, KPI01,crc_orig, crc_cryp)
 
 end = time.time()
 delta = end - start
 
 if ok:
-   print(f"OK: {msg}")
+   print(f"file {output_name} ,OK: {msg}")
    print(f"Encryption time with {params.num_digits} digits: {delta:.3f} seconds")
 else:
    print(f"ERROR: {msg}")
-

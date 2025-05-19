@@ -1,11 +1,14 @@
 from ulianovramdompi import get_long_pi,get_one_time_kpi
 from ulianovellicripto import (
     CriptoParams, get_public_keys,get_private_keys,
-    get_long_pi, calculate_CRC_ID,get_num_digits,
-    criptografar_arq_key_pub
+    get_long_pi, calculate_CRC_ID,get_num_digits,cripto_kpi,decripto_kpi,
+    decriptografar_ubin_file_key_priv,criptografar_ubin_file_key_pub
 )
 import time
+from datetime import datetime
+import sys
 
+   
 print("Test file Encryption with publick key in UEC Model")
 print("This practical example works only with text files with up to 2000 characters for user with TOP+ ID and 503 characters for POP ID.")
 
@@ -43,23 +46,18 @@ if not ok_priv:
     exit()
 print(f"Private key and Pulick key loaded and tested OK")
 User_name="Policarpo Yoshin Ulianov"
-file_name=".\\TEXT\\teste1.txt"
-ok,msg = criptografar_arq_key_pub(file_name,ID,User_name,ID,User_name,
-    DX_base,De_base,K1_pub,K2_pub,K3_pub,K_ID,params)
-if ok:
-    print(f"OK: {msg}")  
-else:
-    print(f"ERRO: {msg}") 
 
-params = CriptoParams(2500)
-file_name = ".\\TEXT\\teste2.txt"
+now = datetime.now()
+time_str = now.strftime("%d/%m/%Y %H:%M:%S.") + f"{int(now.microsecond/100):04d}"
+KPI01=get_one_time_kpi(time_str, Kpriv_alpha,long_pi,180)
+print(f"time_str ={time_str}\nlen(KPI01)={len(KPI01)} KPI01={KPI01}")
 
+file_name=".\\IMG\\teste2.jpg"
 start = time.time()
-
-ok, msg = criptografar_arq_key_pub(
-    file_name, ID, User_name, ID, User_name,
-    DX_base, De_base, K1_pub, K2_pub, K3_pub, K_ID, params
-)
+ok,msg= criptografar_ubin_file_key_pub(file_name, KPI01, long_pi, 
+                                  ID, User_name, ID, User_name,
+                                  DX_base, De_base, K1_pub, K2_pub, K3_pub,
+                                  K_ID, params)
 
 end = time.time()
 delta = end - start
@@ -70,22 +68,16 @@ if ok:
 else:
    print(f"ERROR: {msg}")
 
-params = CriptoParams(7000)
-file_name = ".\\TEXT\\teste2.txt"
-
+file_name=".\\IMG\\teste2_jpg.uec"
 start = time.time()
-
-ok, msg = criptografar_arq_key_pub(
-    file_name, ID, User_name, ID, User_name,
-    DX_base, De_base, K1_pub, K2_pub, K3_pub, K_ID, params
-)
-
+ok,msg=decriptografar_ubin_file_key_priv(file_name, long_pi,ID, User_name,
+                                Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de,
+                                DX_base, alpha_base_str, K_ID, params)
 end = time.time()
 delta = end - start
 
 if ok:
    print(f"OK: {msg}")
-   print(f"Encryption time with {params.num_digits} digits: {delta:.3f} seconds")
+   print(f"Decryption time with {params.num_digits} digits: {delta:.3f} seconds")
 else:
    print(f"ERROR: {msg}")
-
