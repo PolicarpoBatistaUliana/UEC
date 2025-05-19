@@ -10,6 +10,8 @@
 - [Program Workflow](#program-workflow)
 - [Enhanced Key Protection](#enhanced-key-protection)
 - [Practical Applications](#practical-applications)
+- [Encryption of text files with public key](#Encryption-of-text-files-with-public-key)
+- [Examples of Large Binary File Encryption and Decryption in UEC Model](#examples-of-large-binary-file-encryption-and-decryption-in-uec-model)
 - [Advantages of the UEC model](#advantages-of-the-uec-model)
 - [How to Run an Example of the Ulianov Elliptical Encryption Model (UEC)](#how-to-run-an-example-of-the-ulianov-elliptical-encryption-model-uec)
   - [Steps to Run the Example](#steps-to-run-the-example)
@@ -29,7 +31,6 @@
   - [2. Ensuring Secure Association Between User IDs and Public Keys (KPub)](#2-ensuring-secure-association-between-user-ids-and-public-keys-kpub)
 - [Certification Hierarchy](#certification-hierarchy)
 - [Implementation and Practical Considerations](#implementation-and-practical-considerations)
-- [Encryption of text files with public key](#Encryption-of-text-files-with-public-key)
 - [Key Generation](#key-generation)
 - [Why Real-Number-Based Cryptography Was Not Invented Until Now?](#why-real-number-based-cryptography-was-not-invented-until-now)
 - [ChatGPT-4 Analysis](#-Analysis-of-the-UEC-Model-by-ChatGPT-4)
@@ -138,6 +139,86 @@ file "test1_txt.uec":
 
 
 The program decripfilesprivkeys.py read file "test1_txt.uec" and recover the file "teste1(1).txt" that is the same text of original the file "teste1.txt"
+
+
+### Examples of Large Binary File Encryption and Decryption in UEC Model
+
+This section demonstrates the encryption and decryption of large binary files (such as images) using the **UEC (Ulianov Elliptic Cryptography)** model. The scheme is extremely fast and secure, making use of a **One-Time KPI (Key-Pi)** derived from a private base key and timestamp.
+
+#### General Concept
+
+* **Encryption**: The file is split into blocks, and each block is encrypted using a unique XOR mask stream generated from π digits. The starting index and mask variability are controlled by a one-time KPI string.
+* **Decryption**: The same KPI is required to reverse the encryption, using the exact same logic and π-derived mask stream.
+* The KPI used to encrypt is itself encrypted with the user's public key and stored securely in a `.uec` file, together with the encrypted binary `.ubin` file and CRCs (checksums) for integrity verification.
+
+#### File Types Used
+
+* `.jpg`: Original test images (can e any kind of file, jpg is only a big file easy to observe)
+* `.ubin`: Encrypted binary file using XOR with KPI-derived masks
+* `.uec`: UEC file containing encrypted KPI and metadata (e.g., filename, CRCs, timestamp)
+
+#### Dependencies
+
+To run the test programs successfully, you must have the following files in the same directory:
+
+* `ulianovrandompi.py`: Used to generate π digits and KPI masks
+* `ulianovellicripto.py`: Contains the UEC cryptographic engine
+* `IMG/`: A directory with `.jpg` test images
+
+
+####  Test Programs
+
+1. **`cripimagekeypi.py`**
+   🔁 Encrypts and decrypts an image using a One-Time KPI
+   ⚠️ This program is **for test purposes only**. It does not generate `.uec` and has no practical application unless a shared public KPI is used (not recommended).
+
+2. **`cripimagepublickeys.py`**
+   ✅ Generates both `.ubin` and `.uec` files
+
+   * The image is encrypted with a one-time KPI
+   * The KPI is encrypted with the user’s public key
+   * The `.uec` stores the encrypted KPI and both CRCs of the original and encrypted files
+
+3. **`decripimageprivkeys.py`**
+   🔓 Decrypts a `.uec` file with the user’s private key
+
+   * Recovers the KPI
+   * Validates CRCs and re-generates the original file
+   * The output file is saved with suffix `(1)` to avoid overwriting the original
+
+####  Example Output (with 7000 digits precision)
+
+```text
+Test: Encryption and decryption with one-time KPI
+Encrypted file saved as .\IMG\teste3_jpg.ubin
+Decryption successful: .\IMG\teste3(1).jpg
+Encryption time: 1.46 s | Decryption time: 2.15 s
+```
+
+```text
+Test: Encrypt using public key and generate .uec file
+Encrypted KPI saved in .\IMG\teste2_jpg.uec
+Encrypted binary saved in .\IMG\teste2_jpg.ubin
+```
+
+```text
+Test: Decrypt .uec and recover original file
+Decryption successful: .\IMG\teste2(1).jpg
+CRC checks passed, output identical to original
+```
+
+#### Performing a Clean Test
+
+To perform a fresh test:
+
+1. Keep only `.jpg` files inside `IMG/`
+2. Delete previously generated `.ubin` and `.uec` files
+3. Run the test scripts in order:
+
+   * `cripimagepublickeys.py`
+   * `decripimageprivkeys.py`
+
+---
 
 #### Advantages of the UEC Model
 
