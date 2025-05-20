@@ -109,38 +109,92 @@ Private keys are reinforced with multiple layers of protection:
 
 ### Encryption of text files with public key
 
-Thes case is presented using the following programs:
+This section presents a **practical and scalable** example of encrypting and decrypting **text files of arbitrary size** using the **UEC (Ulianov Elliptic Cryptography)** model with a public-private key pair.
 
-* Program: cripfilespublickeys.py => encrypts a text file of up to 2000 characters in a single block;
-* Program: decripfilesprivkeys.py => decrypts a text file of up to 2000 characters in a single block.
+#### Description
 
-This scheme present a first practical example (still limited to just one encryption block, which will be expanded in the coming days) of how to use the UEC model to encrypt a text file.
+* In this approach, a **text file** (e.g., `.txt`) is encrypted using a **One-Time KPI**, which is itself encrypted using the **recipient's public key**.
+* The final `.uec` file stores:
 
-In this simple example, the program cripfilespublickeys.py reads the file "test1.txt" and generates the file "test1_txt.uec", with data encrypted using the user's (User ID = TOP+333-333) public key and generates a public header with the following format:
+  * The encrypted KPI
+  * Metadata (original filename, timestamp, CRCs)
+  * One or more encrypted blocks of text data (each block \~2000 characters for 7000-digit precision)
+* Upon decryption, the `.uec` file is parsed, the KPI is decrypted with the **user's private key**, and the content blocks are reconstructed into the original file.
 
-file "test1_txt.uec":
+#### Requirements
+
+To run this test, make sure you have:
+
+* `ulianovrandompi.py` — generates the KPI using π digits
+* `ulianovellicripto.py` — handles UEC encryption logic
+* A folder named `TEXT/` containing `.txt` files to be encrypted
+* Public and private key files already configured (UEC format)---
+
+#### Test Programs
+
+1. **`cripfilespublickeys.py`**
+   🔐 Encrypts a `.txt` file using the recipient's public key
+
+   * Automatically splits long files into multiple UEC blocks
+   * Stores `.uec` file in `TEXT/` with suffix `_txt.uec`
+
+2. **`decripfilesprivkeys.py`**
+   🔓 Decrypts the `.uec` file using the private key
+
+   * Recovers the original text file
+   * Stores it in `TEXT/` with suffix `(1).txt` to preserve the original
+
+#### Test Output Example
+
+```text
+Test program that encrypts small text files using public key in UEC Model
+Crypting .\TEXT\teste1.txt (1358 characters) => Encrypted in 1 block
+Output file: .\TEXT\teste1_txt.uec
+
+Crypting .\TEXT\teste2.txt (57313 characters) => Encrypted in 114 blocks (2500 digits) in 2.97 seconds
+Crypting again with 7000 digits => 29 blocks in 3.69 seconds
+```
+
+```text
+Test program that decrypts small text files using private key in UEC Model
+Decrypted .\TEXT\teste1_txt.uec => File .\TEXT\teste1(1).txt
+Decrypted .\TEXT\teste2_txt.uec => File .\TEXT\teste2(1).txt
+```
+
+#### Sample UEC Structure (Multi-block File)
+
+```text
 {
-(VER = "UEC-V1.0",
- TY = "PK-Encrypt",
- DT = "File",
- FN = "teste1.txt",
- FL = "1358",
- FT = "2025-05-18 01:01:24",
- FCRC = "head_num93",
- KUID = "TOP+ 333-333",
- KUN = "Policarpo Yoshin Ulianov"),
-(ENC = "DIG3",
- NDIG = "7000",
- NBK = "1",
- BKL_1 = "7002",
- BKCRC_1 = "3653999999"),
-[-1.23194389349142...(7000 digtis)...899]}
+ (VER="UEC-V1.0", TY="PK-Encrypt", ENC="DIG3", DT="File", 
+  FN="teste2.txt", FL="57313", FT="2025-05-19 21:41:47", 
+  FCRC="head_num94", KUID="TOP+ 333-333", KUN="Policarpo Yoshin Ulianov", 
+  NDIG="7000", NBK="29"),
 
+ (BK="1", BKL="7001", BKCRC="7421"), [-1.23194389349142744755...(7000 DIGITS)],
+ (BK="2", BKL="7002", BKCRC="6476"), [-1.23194389349142744757...(7000 DIGITS)],
+ ...
+ (BK="29", BKL="7002", BKCRC="3098"), [-1.23194389349142744757...(7000 DIGITS)]
+}
+```
 
+> 🔒 **Note**: The first \~30 digits of each encrypted block are often identical due to deterministic structure, but the remainder is highly randomized due to variations in the KPI and encryption logic.
 
-The program decripfilesprivkeys.py read file "test1_txt.uec" and recover the file "teste1(1).txt" that is the same text of original the file "teste1.txt"
+---
 
+#### How to Perform a Clean Test
 
+1. Place `.txt` files inside the `TEXT/` folder.
+2. Delete any `.uec` and `(1).txt` files from previous tests.
+3. Run the test programs:
+
+   * `cripfilespublickeys.py` to encrypt
+   * `decripfilesprivkeys.py` to decrypt
+
+---
+
+Let me know if you'd like to add a visual diagram or convert this section into a downloadable PDF.
+
+---
 ### Examples of Large Binary File Encryption and Decryption in UEC Model
 
 This section demonstrates the encryption and decryption of large binary files (such as images) using the **UEC (Ulianov Elliptic Cryptography)** model. The scheme is extremely fast and secure, making use of a **One-Time KPI (Key-Pi)** derived from a private base key and timestamp.
