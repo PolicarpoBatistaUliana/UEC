@@ -146,24 +146,19 @@ To run this test, make sure you have:
 
 #### Test Output Example
 
-```text
 Test program that encrypts small text files using public key in UEC Model
 Crypting .\TEXT\teste1.txt (1358 characters) => Encrypted in 1 block
 Output file: .\TEXT\teste1_txt.uec
 
 Crypting .\TEXT\teste2.txt (57313 characters) => Encrypted in 114 blocks (2500 digits) in 2.97 seconds
 Crypting again with 7000 digits => 29 blocks in 3.69 seconds
-```
 
-```text
 Test program that decrypts small text files using private key in UEC Model
 Decrypted .\TEXT\teste1_txt.uec => File .\TEXT\teste1(1).txt
 Decrypted .\TEXT\teste2_txt.uec => File .\TEXT\teste2(1).txt
-```
 
 #### Sample UEC Structure (Multi-block File)
 
-```text
 {
  (VER="UEC-V1.0", TY="PK-Encrypt", ENC="DIG3", DT="File", 
   FN="teste2.txt", FL="57313", FT="2025-05-19 21:41:47", 
@@ -175,11 +170,8 @@ Decrypted .\TEXT\teste2_txt.uec => File .\TEXT\teste2(1).txt
  ...
  (BK="29", BKL="7002", BKCRC="3098"), [-1.23194389349142744757...(7000 DIGITS)]
 }
-```
 
 > 🔒 **Note**: The first \~30 digits of each encrypted block are often identical due to deterministic structure, but the remainder is highly randomized due to variations in the KPI and encryption logic.
-
----
 
 #### How to Perform a Clean Test
 
@@ -189,10 +181,6 @@ Decrypted .\TEXT\teste2_txt.uec => File .\TEXT\teste2(1).txt
 
    * `cripfilespublickeys.py` to encrypt
    * `decripfilesprivkeys.py` to decrypt
-
----
-
-Let me know if you'd like to add a visual diagram or convert this section into a downloadable PDF.
 
 ---
 ### Examples of Large Binary File Encryption and Decryption in UEC Model
