@@ -857,9 +857,9 @@ def decrypt_with_public_key(de_crip_str, Kpub1_str, Kpub2_str, Kpub3_str,
 
     # Reconstruct headers
     Head_num_str = decod_7keys_str[deshead_num:deshead_num + params.len_header_num]
-    Num_Head_str = decod_7keys_str[deslhead_str:deslhead_str + params.len_header_str_dig]
-    Head_str_rec, _, _ = convert_dig3_to_str(Num_Head_str)
-
+    Head_dig3_str = decod_7keys_str[deslhead_str:deslhead_str + params.len_header_str_dig]
+    Head_str_rec, _, _ = convert_dig3_to_str(Head_dig3_str)
+    #print(f"len Head_dig3_str={len(Head_dig3_str)},len Head_str_rec={len(Head_str_rec)}")
     Head_num_val = mpf(Head_num_str) if len(Head_num_str) > 10 else 0
 
     mp.dps = original_dps
@@ -1418,27 +1418,18 @@ def calculate_all_keys(long_pi, path, pass_word1,pass_word2, time, id_without_cr
 
     return True, f"Keys for ID {complete_id} successfully generated and verified."
 
-def gerar_nome_uec(file_name):
+def gerar_nome_uec(file_name,prefix=".uec"):
     outname=""
     for i in range(len(file_name)):
       if i>2 and (file_name[i] =='.'):
          outname+="_"
       else:
         outname=outname+file_name[i]  
-    outname += ".uec"
+    outname += prefix
     return outname
 
-def gerar_nome_uec_bin(file_name):
-    outname=""
-    for i in range(len(file_name)):
-      if i>2 and (file_name[i] =='.'):
-         outname+="_"
-      else:
-        outname=outname+file_name[i]  
-    outname += ".ubin"
-    return outname
 
-def recupera_nome_uec_bin(file_name):
+def recupera_nome_uec(file_name):
     outname=""
     for i in range(len(file_name)):
       if i>2 and (file_name[i] =='.'):
@@ -1532,12 +1523,11 @@ def decriptografar_msg_key_priv(content, User_ID, User_Name,
     header_txt = ", ".join(f"{k}={v}" for k, v in header.items())
   
     #print(f"header_part      ={header_txt}")
-
-    max_chars=params.len_header_str_char
-    original = normaliza(header_txt)[:max_chars]
-    recuperado = normaliza(recovered_header_string)[:max_chars]
-
-    if original != recuperado:
+    head1 = normaliza(recovered_header_string)
+    tam = len(head1)
+    head2= normaliza(header_txt)[:tam]
+  
+    if head1!=head2:
         return False, "Cabeçalho descriptografado não confere com o original: pode ter sido adulterado."
    
     return True,recovered_text 
@@ -1773,12 +1763,14 @@ def decryp_file_key_priv(file_name, User_ID, User_Name,
         return False, f"CRC do conteúdo \n{crc_file[:90]} não confere \n{recovered_header_number[:90]}"
 
     header_txt = ", ".join(f"{k}={v}" for k, v in header.items())
-    max_chars = params.len_header_str_char
-    if normaliza(header_txt)[:max_chars] != normaliza(recovered_header_str)[:max_chars]:
+    head1 = normaliza(recovered_header_str)
+    tam = len(head1)
+    head2= normaliza(header_txt)[:tam]
+    if head1!=head2:
         return False, "Cabeçalho descriptografado não confere com o original: pode ter sido adulterado."
 
     # Output name with fixed suffix
-    nome_saida = recupera_nome_uec_bin(file_name)
+    nome_saida = recupera_nome_uec(file_name)
  
     with open(nome_saida, "w", encoding="utf-8") as f:
         f.write(texto_recuperado_total)
@@ -1860,7 +1852,7 @@ def cripto_kpi(filename, long_pi, kpi, len_blk=19777):
     crc_orig_dig3 = convert_byte_to_dig3(crc_orig.to_bytes((crc_orig.bit_length() + 7) // 8, byteorder="big"))
     crc_cryp_dig3 = convert_byte_to_dig3(crc_cryp.to_bytes((crc_cryp.bit_length() + 7) // 8, byteorder="big"))
 
-    output_name = gerar_nome_uec_bin(filename)
+    output_name = gerar_nome_uec(filename,prefix=".ubin")
     try:
         with open(output_name, "wb") as f:
             f.write(encrypted_bytes)
@@ -1953,7 +1945,7 @@ def decripto_kpi(filename, long_pi, kpi, crc_orig_dig3, crc_cryp_dig3,len_blk=19
 
 
     # Output name with fixed suffix
-    output_name = recupera_nome_uec_bin(filename)
+    output_name = recupera_nome_uec(filename)
     try:
         with open(output_name, "wb") as f:
             f.write(decrypted_bytes)
@@ -1994,8 +1986,7 @@ def criptografar_ubin_file_key_pub(file_name, KPI, long_pi,
     encoded = convert_str_to_dig3(KPI)
     crc_dig3 = calc_crc_str_dig3(KPI, lencrc=100)
     head_num = crc_dig3
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
+    now = "01/01/2025 00:00:00.000" #datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     # Prepare header with additional info
     header_str = {
         "VER": "UEC-V1.0",
@@ -2104,13 +2095,16 @@ def decriptografar_ubin_file_key_priv(file_name, long_pi,User_ID, User_Name,
             return False, f"Número de dígitos {ndg} não confere com {params.num_digits}"
 
     # Descriptografa o KPI
-    _, dig3_data, header_number, header_str = decrypt_with_private_key(
+    _, dig3_data, header_number, recovered_header_str = decrypt_with_private_key(
                 encrypted_data, Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de,
                 DX_base, alpha_base, K_ID, params
             )
     header_txt = ", ".join(f"{k}={v}" for k, v in header.items())
-    max_chars = params.len_header_str_char
-    if normaliza(header_txt)[:max_chars] != normaliza(header_str)[:max_chars]:
+    head1 = normaliza(recovered_header_str)
+    tam = len(head1)
+    head2= normaliza(header_txt)[:tam]
+  
+    if head1!=head2:
         return False, "Cabeçalho descriptografado não confere com o original: pode ter sido adulterado."
 
     KPI_REC, _, _ = convert_dig3_to_str(dig3_data)  
@@ -2124,3 +2118,172 @@ def decriptografar_ubin_file_key_priv(file_name, long_pi,User_ID, User_Name,
         return False, f"Erro arquivo {output_name}:{msg}"
   
     return True, f"Arquivo decriptografado com sucesso: {output_name}"
+
+
+def sign_file_with_private_key(file_name, signer_ID, signer_name,
+                               Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de,
+                               DX_base, alpha_base, K_ID, params):
+
+    out_name = ""
+    if not os.path.exists(file_name):
+        return False, f"Arquivo '{file_name}' não encontrado.", out_name
+
+    with open(file_name, "r", encoding="utf-8") as f:
+        content = f.read().strip()
+
+    file_len = len(content)
+    encoded_full = convert_str_to_dig3(content)
+    num_digits = params.num_digits
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    header_crc = calc_crc_str_dig3(content, lencrc=100)
+
+    max_dig3_len = params.len_data_dig3
+    num_blocks = (len(encoded_full) + max_dig3_len - 1) // max_dig3_len
+
+    header_str = {
+        "VER": "UEC-V1.0",
+        "TY": "KPRIV-SIG",
+        "ENC": "DIG3",
+        "DT": "File",
+        "FN": os.path.basename(file_name),
+        "FL": str(file_len),
+        "FT": now,
+        "FCRC": header_crc,
+        "SIGID": signer_ID,
+        "SIGN": signer_name,
+        "NDIG": str(num_digits),
+        "NBK": str(num_blocks)
+    }
+
+    header_txt = ", ".join(f"{k}={v}" for k, v in header_str.items())
+    mp.dps = num_digits
+    blocos = []
+
+    for i in range(num_blocks):
+        bloco_txt = encoded_full[i*max_dig3_len : (i+1)*max_dig3_len]
+
+        bloco_encriptado = encrypt_with_private_key(
+            bloco_txt, header_crc, header_txt,
+            Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de,
+            DX_base, alpha_base, K_ID, params)
+        bloco_crc = calc_crc_str_dig3(bloco_encriptado, lencrc=10)
+
+        param = {
+            "BK": str(i+1),
+            "BKL": str(len(bloco_encriptado)),
+            "BKCRC": bloco_crc
+        }
+
+        bloco = f"({dict_to_str(param)}),\n[{bloco_encriptado}]"
+        blocos.append(bloco)
+
+    bloco_uec = f"\n({dict_to_str(header_str)}),\n" + ",\n\n".join(blocos) + "\n"
+    bloco_uec = "{" + bloco_uec + "}"
+    out_name = gerar_nome_uec(file_name,prefix=".usig")
+    with open(out_name, "w", encoding="utf-8") as f:
+        f.write(bloco_uec)
+
+    msg = f"Arquivo {file_name} ({file_len} caracteres) assinado em {num_blocks} bloco(s) e salvo como: {out_name}"
+    return True, msg, out_name
+
+def verify_signed_file_with_public_key(file_name, signer_ID, signer_name,
+                                       Kpub1, Kpub2, Kpub3,
+                                       DX_base, alpha_base, K_ID, params):
+    if not os.path.exists(file_name):
+        return False, f"Arquivo '{file_name}' não encontrado."
+
+    with open(file_name, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    try:
+        header_part = content.split("(", 1)[1].split("),", 1)[0]
+        header = parse_block(header_part)
+    except Exception as e:
+        return False, f"Erro ao extrair cabeçalho: {e}"
+
+    if header.get("VER") != "UEC-V1.0":
+        return False, "Versão inválida"
+    if header.get("TY") != "KPRIV-SIG":
+        return False, "Tipo inválido (não é uma assinatura)"
+    if header.get("DT") != "File":
+        return False, "Tipo de dado inválido"
+    if header.get("SIGID") != signer_ID or header.get("SIGN") != signer_name:
+        return False, "Assinatura não corresponde ao remetente"
+    if header.get("ENC") != "DIG3":
+        return False, f"Codificação inválida: {header.get('ENC')}"
+    
+    ndg = int(header.get("NDIG", 0))
+    if ndg != params.num_digits:
+        if ndg == 2500:
+            params = CriptoParams(2500)
+        else:
+            return False, f"Número de dígitos {ndg} não confere com {params.num_digits}"
+    
+    num_blocos = int(header.get("NBK", 0))
+    if num_blocos < 1:
+        return False, "Número de blocos inválido"
+
+    texto_recuperado_total = ""
+    recovered_header_str = ""
+    mp.dps = params.num_digits
+    cursor = content.find("),") + 2
+
+    for i in range(num_blocos):
+        try:
+            start_param = content.find("(", cursor)
+            end_param = content.find("),", start_param)
+            param_part = content[start_param + 1:end_param]
+            param = parse_block(param_part)
+
+            start_data = content.find("[", end_param)
+            end_data = content.find("]", start_data)
+            encrypted_data = content[start_data + 1:end_data].strip()
+            cursor = end_data + 1
+
+            if int(param.get("BK", -1)) != (i + 1):
+                return False, f"Bloco fora de ordem ou inválido: {param.get('BK')}"
+            if int(param.get("BKL", 0)) != len(encrypted_data):
+                return False, f"Tamanho incorreto no bloco {i+1}"
+
+            crc_calc = calc_crc_str_dig3(encrypted_data, lencrc=10)
+            crc_file = param.get("BKCRC")
+            if crc_calc != crc_file:
+                return False, f"CRC do bloco {i+1} ({crc_calc}) não confere com CRC cabeçalho ({crc_file})"
+
+            _, dig3_data, header_number, header_str = decrypt_with_public_key(
+                encrypted_data, Kpub1, Kpub2, Kpub3,
+                DX_base, alpha_base, K_ID, params
+            )
+            txt, _, _ = convert_dig3_to_str(dig3_data)
+            texto_recuperado_total += txt
+
+            if i == 0:
+                recovered_header_number = str(header_number)[:-2]
+                recovered_header_str = header_str
+
+        except Exception as e:
+            return False, f"Erro ao processar bloco {i+1}: {e}"
+
+    tam1 = int(header.get("FL", -1))
+    tam2 = len(texto_recuperado_total)
+    if tam1 != tam2:
+        return False, f"Tamanho do texto recuperado {tam2} não confere com tamanho original {tam1}"
+
+    crc_file = calc_crc_str_dig3(texto_recuperado_total, lencrc=100)
+    if recovered_header_number[:90] != crc_file[:90]:
+        return False, f"CRC do conteúdo\n{crc_file[:90]}\nnão confere\n{recovered_header_number[:90]}"
+
+    header_txt = ", ".join(f"{k}={v}" for k, v in header.items())
+    head1 = normaliza(recovered_header_str)
+    tam = len(head1)
+    head2= normaliza(header_txt)[:tam]
+  
+    if head1!=head2:
+        return False, "Cabeçalho descriptografado não confere com o original: pode ter sido adulterado."
+
+    nome_saida = recupera_nome_uec(file_name)
+
+    with open(nome_saida, "w", encoding="utf-8") as f:
+        f.write(texto_recuperado_total)
+
+    return True, f"Assinatura verificada e arquivo restaurado como {nome_saida}."

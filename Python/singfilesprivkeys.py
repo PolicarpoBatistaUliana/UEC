@@ -2,11 +2,11 @@ from ulianovramdompi import get_long_pi,get_one_time_kpi
 from ulianovellicripto import (
     CriptoParams, get_public_keys,get_private_keys,
     get_long_pi, calculate_CRC_ID,get_num_digits,test_keys,
-    crypt_file_key_pub
+    sign_file_with_private_key
 )
 import time
 
-print("Test program that Encrypt small text files (<100k bytes) with publick key in UEC Model")
+print("Test program that sing small text files (<100k bytes) with private keys in UEC Model")
 print("This practical example works only with text files stored im folder /EXP")
 
 # Load the long π value used for ID generation and cryptographic parameters
@@ -57,53 +57,49 @@ if load_priv_keys:
 print("Keys successfully loaded and verified\n")
 User_name="Policarpo Yoshin Ulianov"
 file_name=".\\TEXT\\teste1.txt"
+print("Keys successfully loaded and verified\n")
 
-print(f"Crypting {file_name} With {ID} Public Keys using  {params.num_digits} digits ")
-ok,msg,out_file = crypt_file_key_pub(file_name,ID,User_name,ID,User_name,
-    DX_base,De_base,K1_pub,K2_pub,K3_pub,K_ID,params)
-if ok:
-    print(f"OK: {msg}")  
-else:
-    print(f"ERRO: {msg}") 
+signer_ID = "TOP+ 333-333"
+signer_name = "Policarpo Yoshin Ulianov"
 
-params = CriptoParams(2500)
-file_name = ".\\TEXT\\teste2.txt"
-print(f"Crypting {file_name} With {ID} Public Keys using  {params.num_digits} digits ")
-start = time.time()
-
-ok, msg,out_file = crypt_file_key_pub(
-    file_name, ID, User_name, ID, User_name,
-    DX_base, De_base, K1_pub, K2_pub, K3_pub, K_ID, params
-)
-
-end = time.time()
-delta = end - start
-
-if ok:
-   print(f"OK: {msg}")
-   print(f"File {out_file} generatade and avaliale for transmission")
-   print(f"Encryption time with {params.num_digits} digits: {delta:.3f} seconds")
-else:
-   print(f"ERROR: {msg}")
-
+# Primeiro teste com 7000 dígitos
 params = CriptoParams(7000)
-file_name = ".\\TEXT\\teste2.txt"
-print(f"Crypting {file_name} With {ID} Public Keys using  {params.num_digits} digits ")
-
+file_name = ".\\TEXT\\teste1.txt"
+print(f"Signing {file_name} With {signer_ID} Private Keys using {params.num_digits} digits")
 start = time.time()
 
-ok, msg,out_file  = crypt_file_key_pub(
-    file_name, ID, User_name, ID, User_name,
-    DX_base, De_base, K1_pub, K2_pub, K3_pub, K_ID, params
+ok, msg, out_file = sign_file_with_private_key(
+    file_name, signer_ID, signer_name,
+    Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de,
+    DX_base, alpha_base_str, K_ID, params
 )
 
 end = time.time()
 delta = end - start
 
 if ok:
-   print(f"OK: {msg}")
-   print(f"File {out_file} generatade and avaliale for transmission")
-   print(f"Encryption time with {params.num_digits} digits: {delta:.3f} seconds")
+    print(f"OK: {msg}")
+    print(f"File {out_file} generated and available for verification")
+    print(f"Signing time with {params.num_digits} digits: {delta:.3f} seconds")
 else:
-   print(f"ERROR: {msg}")
+    print(f"ERROR: {msg}")
 
+file_name = ".\\TEXT\\teste2.txt"
+print(f"Signing {file_name} With {signer_ID} Private Keys using {params.num_digits} digits")
+start = time.time()
+
+ok, msg, out_file = sign_file_with_private_key(
+    file_name, signer_ID, signer_name,
+    Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de,
+    DX_base, alpha_base_str, K_ID, params
+)
+
+end = time.time()
+delta = end - start
+
+if ok:
+    print(f"OK: {msg}")
+    print(f"File {out_file} generated and available for verification")
+    print(f"Signing time with {params.num_digits} digits: {delta:.3f} seconds")
+else:
+    print(f"ERROR: {msg}")

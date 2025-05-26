@@ -69,7 +69,7 @@ time_str = now.strftime("%d/%m/%Y %H:%M:%S.") + f"{int(now.microsecond/100):04d}
 KPI01=get_one_time_kpi(time_str, Kpriv_alpha,long_pi,180)
 print(f"One time Key-PI Data:\nTime seed ={time_str} \n Key length={len(KPI01)}\n Key-PI Value={KPI01}")
 
-file_name=".\\IMG\\teste2.jpg"
+file_name=".\\IMG\\teste3.jpg"
 start = time.time()
 ok,msg= criptografar_ubin_file_key_pub(file_name, KPI01, long_pi, 
                                   ID, User_name, ID, User_name,

@@ -1,16 +1,11 @@
-from ulianovramdompi import get_long_pi,get_one_time_kpi
+from ulianovramdompi import get_long_pi
 from ulianovellicripto import (
-    CriptoParams, get_public_keys,get_private_keys,
-    get_long_pi, calculate_CRC_ID,get_num_digits,test_keys,
-    decriptografar_ubin_file_key_priv
-)
-import time
-from datetime import datetime
-import sys
+    CriptoParams, get_public_keys,get_private_keys,test_keys,
+    get_long_pi, calculate_CRC_ID,get_num_digits,
+    verify_signed_file_with_public_key)
 
-   
-print("Test file Decrypt files with private key in UEC Model")
-print("IT works with some large images (5Mbytes size) examples stored in the folder IMG.")
+print("Test program that dencrypt small text files with publick key in UEC Model")
+print("This practical example works only with text files stored im folder /EXP")
 
 # Load the long π value used for ID generation and cryptographic parameters
 long_pi, piok = get_long_pi(".//KEYS//", 1000000, generate=False)
@@ -31,7 +26,7 @@ print(params)
 # Define password and path to keys
 senha = "POLICARPO77777777"
 path_keys = "./KEYS"
-
+# Load the public key
 K1_pub, K2_pub, K3_pub, K_ID, DX_base,De_base, ok_pub, msg_pub = get_public_keys(long_pi, path_keys, ID)
 # Load the private key
 Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de, ok_priv, msg_priv = get_private_keys(long_pi, path_keys, ID, senha)
@@ -44,6 +39,7 @@ if not ok_pub:
 if not ok_priv:
     print(f"Error in private key: {msg_priv}")
     exit()
+
 # Test if the private and public keys match (only the key owner can perform this)
 print("\nTesting Keys (Only the owner of the keys can do this):")
 keyok, DX_base,De_base = test_keys(
@@ -56,18 +52,33 @@ if not keyok:
     exit()
 else:
     print("Keys successfully loaded and verified\n")
+
 User_name="Policarpo Yoshin Ulianov"
 
-file_name=".\\IMG\\teste3_jpg.uec"
-start = time.time()
-ok,msg=decriptografar_ubin_file_key_priv(file_name, long_pi,ID, User_name,
-                                Kpriv_alpha, Kpriv_x, Kpriv_y, Kpriv_de,
-                                DX_base, alpha_base_str, K_ID, params)
-end = time.time()
-delta = end - start
+file_name = ".\\TEXT\\teste1_txt.usig"
+print(f"Verifying signature in {file_name} With {ID} Public Keys")
+
+ok, msg = verify_signed_file_with_public_key(
+    file_name, ID, User_name,
+    K1_pub, K2_pub, K3_pub,
+    DX_base, alpha_base_str, K_ID, params
+)
 
 if ok:
-   print(f"OK: {msg}")
-   print(f"Decryption time with {params.num_digits} digits: {delta:.3f} seconds")
+    print(f"OK: {msg}")
 else:
-   print(f"ERROR: {msg}")
+    print(f"ERRO: {msg}")
+
+file_name = ".\\TEXT\\teste2_txt.usig"
+print(f"Verifying signature in {file_name} With {ID} Public Keys")
+
+ok, msg = verify_signed_file_with_public_key(
+    file_name, ID, User_name,
+    K1_pub, K2_pub, K3_pub,
+    DX_base, alpha_base_str, K_ID, params
+)
+
+if ok:
+    print(f"OK: {msg}")
+else:
+    print(f"ERRO: {msg}")
